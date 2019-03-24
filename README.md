@@ -211,7 +211,7 @@ public class UserStyle {
 @ExcelExport(sheetName = "用户数据", titleRowHeight = 25, dataRowHeight = 20)
 public class UserWH {
 
-	// 自动宽度
+    // 自动宽度
     @ExcelExportColumn(colIndex = 1, title = "姓名", autoWidth = true)
     private String name;
 
@@ -233,8 +233,6 @@ public class UserWH {
         @CellRange(firstRow = 3, lastRow = 3, firstCol = 3, lastCol = 4, title = "扩展信息", cellStyleBuilder = LightGreenTitleCellStyleBuilder.class)})
 @ExcelExport(sheetName = "用户数据")
 public class UserComplexHeader {
-  
-  
     ....
 }
 
@@ -246,7 +244,6 @@ public class UserComplexHeader {
 InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("test.xlsx");
 ExcelReader excelReader = new ExcelReader(is);
 List<HolidayCfg> holidayCfgs = excelReader.read(HolidayCfg.class);
-
 ````
 
 ````
@@ -257,7 +254,6 @@ public class HolidayCfg {
     private Date holidayDate;
 
     @ExcelImportColumn(colIndex = 2, allowBlank = false)
-
     private String holidayName;
 
     @ExcelKVConvert(kvmap = {"是=0", "否=1"})
@@ -265,9 +261,8 @@ public class HolidayCfg {
     private String isWork;
 
     @ExcelImportColumn(colIndex = 4)
-
     private String remark;
-    
+   
     ....
 }
 
