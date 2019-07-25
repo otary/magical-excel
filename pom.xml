@@ -6,7 +6,7 @@
 
     <groupId>cn.chenzw.excel</groupId>
     <artifactId>magical-excel</artifactId>
-    <version>1.0</version>
+    <version>1.0.3</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -16,7 +16,7 @@
         <commons-lang3.version>3.5</commons-lang3.version>
         <guava.version>20.0</guava.version>
         <logback.version>1.2.3</logback.version>
-        <poi.version>3.17</poi.version>
+        <poi.version>3.15</poi.version>
     </properties>
 
     <dependencies>
@@ -65,11 +65,21 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
             <version>${logback.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
+
+
+    <distributionManagement>
+        <repository>
+            <id>itm-release</id>
+            <url>http://192.168.17.223:8085/repository/maven-3rd/</url>
+        </repository>
+    </distributionManagement>
 </project>

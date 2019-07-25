@@ -1,7 +1,6 @@
 package cn.chenzw.excel.magic.core.executor;
 
 import cn.chenzw.excel.magic.core.analysis.XlsxAnalysisHandler;
-import cn.chenzw.excel.magic.core.constants.ExcelConstants;
 import cn.chenzw.excel.magic.core.context.ExcelReaderContext;
 import cn.chenzw.excel.magic.core.exception.ExcelException;
 import cn.chenzw.excel.magic.core.lifecycle.ExcelReaderLifecycle;
@@ -20,7 +19,6 @@ import cn.chenzw.excel.magic.core.util.ExcelFieldUtils;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.util.ZipSecureFile;
@@ -39,10 +37,7 @@ import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author chenzw
@@ -51,7 +46,7 @@ public abstract class AbstractExcelReaderExecutor<T> implements ExcelReaderLifec
 
     private static final Logger logger = LoggerFactory.getLogger(ExcelReaderExecutor.class);
 
-    protected int curSheetIndex;
+    protected int curSheetIndex = 0;
     protected int curRowIndex;
     protected int curColIndex;
     protected int totalRows;
@@ -82,7 +77,7 @@ public abstract class AbstractExcelReaderExecutor<T> implements ExcelReaderLifec
 
     @Override
     public List<T> executeRead() {
-        Map<Integer, ExcelSheetDefinition> sheetdefinitions = readerContext.getSheetDefinitions();
+        /*Map<Integer, ExcelSheetDefinition> sheetdefinitions = readerContext.getSheetDefinitions();
         // 延迟解析比率
         ZipSecureFile.setMinInflateRatio(-1.0d);
         try (OPCPackage pkg = OPCPackage.open(readerContext.getInputStream())) {
@@ -107,7 +102,47 @@ public abstract class AbstractExcelReaderExecutor<T> implements ExcelReaderLifec
             e.printStackTrace();
         } catch (OpenXML4JException e) {
             e.printStackTrace();
+        }*/
+
+        Map<Integer, ExcelSheetDefinition> sheetdefinitions = readerContext.getSheetDefinitions();
+        // 延迟解析比率
+        ZipSecureFile.setMinInflateRatio(-1.0d);
+        try (OPCPackage pkg = OPCPackage.open(readerContext.getInputStream())) {
+            this.xssfReader = new XSSFReader(pkg);
+            XMLReader parser = XMLReaderFactory.createXMLReader("com.sun.org.apache.xerces.internal.parsers.SAXParser");
+            ContentHandler xlsxAnalysisHandler = new XlsxAnalysisHandler(xssfReader.getStylesTable(),
+                    xssfReader.getSharedStringsTable(), getExcelRowProcess());
+            parser.setContentHandler(xlsxAnalysisHandler);
+
+            Iterator<InputStream> sheets = this.xssfReader.getSheetsData();
+            while (sheets.hasNext()) {
+                InputStream sheet = sheets.next();
+                if (sheetdefinitions.containsKey(this.curSheetIndex + 1)) {
+                    this.curSheetIndex++;
+                    InputSource sheetSource = new InputSource(sheet);
+                    parser.parse(sheetSource);
+                }
+                sheet.close();
+            }
+
+
+            /*for (Map.Entry<Integer, ExcelSheetDefinition> sheetDefinitionEntry : sheetdefinitions.entrySet()) {
+                this.curSheetIndex = sheetDefinitionEntry.getKey();
+                InputStream sheet = this.xssfReader.getSheet(ExcelConstants.SHEET_PRFIX + this.curSheetIndex);
+                InputSource sheetSource = new InputSource(sheet);
+                parser.parse(sheetSource);
+                sheet.close();
+            }*/
+            return datas;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            e.printStackTrace();
+        } catch (OpenXML4JException e) {
+            e.printStackTrace();
         }
+
+
         return null;
     }
 

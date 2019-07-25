@@ -1,6 +1,7 @@
 package cn.chenzw.excel.magic.core.meta.model;
 
 
+import cn.chenzw.excel.magic.core.exception.ExcelReaderException;
 import cn.chenzw.excel.magic.core.meta.annotation.ExcelImport;
 import cn.chenzw.excel.magic.core.meta.annotation.ExcelImportColumn;
 
@@ -32,6 +33,9 @@ public class AnnotationExcelReaderSheetDefinition implements ExcelReaderSheetDef
 
     private void initSheetMeta() {
         ExcelImport excelImport = this.cls.getAnnotation(ExcelImport.class);
+        if (excelImport == null) {
+            throw new ExcelReaderException("Class[" + this.cls.getCanonicalName() + "] miss @ExcelImport!");
+        }
         this.sheetIndexs = excelImport.sheetIndex();
         this.firstDataRow = excelImport.firstDataRow();
     }

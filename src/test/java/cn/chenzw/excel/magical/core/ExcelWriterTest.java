@@ -76,7 +76,7 @@ public class ExcelWriterTest {
     }
 
     /**
-     * 行高、单元格宽度
+     * 自定义行高、列宽
      */
     @Test
     public void testWH() {
@@ -148,7 +148,7 @@ public class ExcelWriterTest {
     @Test
     public void testWriteMulitSheetData() {
         try (FileOutputStream fos = new FileOutputStream(new File("multi_sheet_data.xlsx"))) {
-            ExcelWriter.newInstance().addData(users).addData(holidayCfgs).write(fos);
+            ExcelWriter.newInstance().addData(holidayCfgs).addData(users).write(fos);
             //ExcelWriter.newInstance().addData(users, holidayCfgs).write(fos);
         } catch (IOException e) {
             e.printStackTrace();

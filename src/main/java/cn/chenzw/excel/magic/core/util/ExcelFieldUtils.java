@@ -57,6 +57,15 @@ public class ExcelFieldUtils {
         return "";
     }
 
+    /**
+     * 给字段赋值
+     * @param field
+     * @param o
+     * @param cellValue
+     * @param dateFormat
+     * @throws IllegalAccessException
+     * @throws ParseException
+     */
     public static void setFieldValue(Field field, Object o, Object cellValue, String dateFormat)
             throws IllegalAccessException, ParseException {
 
@@ -70,14 +79,18 @@ public class ExcelFieldUtils {
         } else if (field.getType() == Long.class) {
             field.set(o, cellValue);
         } else if (field.getType() == Integer.class) {
-            field.set(o, cellValue);
+            if (cellValue instanceof String) {
+                field.set(o, Integer.valueOf((String) cellValue));
+            } else {
+                field.set(o, cellValue);
+            }
         } else if (field.getType() == Date.class) {
-            if (o instanceof String) {
+            if (cellValue instanceof String) {
                 field.set(o, tryParseDate((String) cellValue, ExcelConstants.DEFAULT_DATE_FORMAT));
-            } else if (o instanceof Date) {
+            } else if (cellValue instanceof Date) {
                 field.set(o, cellValue);
             } else {
-                throw new ExcelException("字段[" + field.getName() + "]不支持[" + o.getClass() + "]类型!");
+                throw new ExcelException("字段[" + field.getName() + "]不支持[" + cellValue.getClass() + "]类型!");
             }
         } else if (field.getType() == Float.class) {
             field.set(o, cellValue);

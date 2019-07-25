@@ -3,9 +3,11 @@ package cn.chenzw.excel.magical.core.domain;
 import cn.chenzw.excel.magic.core.meta.annotation.ExcelDataFormat;
 import cn.chenzw.excel.magic.core.meta.annotation.ExcelExport;
 import cn.chenzw.excel.magic.core.meta.annotation.ExcelExportColumn;
+import cn.chenzw.excel.magic.core.meta.annotation.ExcelImport;
 
 import java.util.Date;
 
+@ExcelImport(sheetIndex = 2, firstDataRow = 2)
 @ExcelExport(sheetName = "用户数据")
 public class User {
 

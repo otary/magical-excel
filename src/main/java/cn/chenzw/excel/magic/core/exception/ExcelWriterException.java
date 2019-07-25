@@ -31,6 +31,7 @@ public class ExcelWriterException extends ExcelException {
 
     public ExcelWriterException(String message) {
         super(message);
+        this.message = message;
     }
 
     public ExcelWriterException(String message, Throwable cause) {

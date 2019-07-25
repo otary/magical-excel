@@ -33,6 +33,7 @@ public class ExcelReaderException extends ExcelException {
 
     public ExcelReaderException(String message) {
         super(message);
+        this.message = message;
     }
 
     public ExcelReaderException(String message, Throwable cause) {
@@ -42,6 +43,7 @@ public class ExcelReaderException extends ExcelException {
     public ExcelReaderException(Throwable cause) {
         super(cause);
     }
+
 
     public int getSheetIndex() {
         return sheetIndex;
@@ -68,7 +70,6 @@ public class ExcelReaderException extends ExcelException {
         return message;
     }
 
-
     public String getShortMessage() {
         return String.format("sheet:[ %d ], row:[ %d ], col:[ %d ], cellValue: [ %s ], message:[ %s ]", this.sheetIndex,
                 this.rowIndex, this.colIndex, this.cellValue, this.message);
@@ -76,12 +77,14 @@ public class ExcelReaderException extends ExcelException {
 
     public String getHumaneMessage() {
         return String.format("第 %d 个Sheet页 的第 %d 行第 %d 列的数据[%s]读取异常! 可能原因:[%s]! \n 详细堆栈信息: [%s] ", this.sheetIndex,
-                this.rowIndex, this.colIndex, this.cellValue, this.message, ExceptionUtils.getStackTrace(this.cause));
+                this.rowIndex, this.colIndex, this.cellValue, this.message,
+                (this.cause == null ? "" : ExceptionUtils.getStackTrace(this.cause)));
     }
 
     @Override
     public String toString() {
         return String.format("第 %d 个Sheet页的第 %d 行第 %d 列的数据[ %s ]读取异常! 可能原因:[%s]! \n 详细堆栈信息: [%s] ", this.sheetIndex,
-                this.rowIndex, this.colIndex, this.cellValue, this.message, ExceptionUtils.getStackTrace(this.cause));
+                this.rowIndex, this.colIndex, this.cellValue, this.message,
+                (this.cause == null ? "" : ExceptionUtils.getStackTrace(this.cause)));
     }
 }

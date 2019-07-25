@@ -106,7 +106,7 @@ public class XlsxAnalysisHandler extends DefaultHandler {
     }
 
     @Override
-    public void characters(char[] ch, int start, int length) throws SAXException {
+    public void characters(char[] ch, int start, int length) {
         this.tagValue += new String(ch, start, length);
     }
 
