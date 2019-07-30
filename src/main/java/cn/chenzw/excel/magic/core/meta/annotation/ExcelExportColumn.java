@@ -21,13 +21,13 @@ public @interface ExcelExportColumn {
      * 标题
      * @return
      */
-    String title() default "";
+    String title();
 
     /**
      * 列索引（从1开始）
      * @return
      */
-    int colIndex() default -1;
+    int colIndex();
 
     /**
      * 列类型

@@ -13,7 +13,7 @@ public @interface ExcelImportColumn {
      * 列索引(从1开始)
      * @return
      */
-    int colIndex() default -1;
+    int colIndex();
 
     /**
      * 是否允许空值

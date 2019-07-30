@@ -10,15 +10,15 @@ import java.lang.annotation.Target;
 public @interface ExcelImport {
 
     /**
-     * 绑定的sheet页（可多个）
+     * 绑定的sheet页（可多个, 从1开始）
      * @return
      */
-    int[] sheetIndex() default {};
+    int[] sheetIndex() default {1};
 
     /**
-     * 起始数据行
+     * 起始数据行(从1开始)
      * @return
      */
-    int firstDataRow() default 1;
+    int firstDataRow() default 2;
 
 }
