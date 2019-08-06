@@ -24,14 +24,13 @@ import java.util.List;
 @RunWith(JUnit4.class)
 public class ExcelWriterTest {
 
-    static List<User> users = null;
+    private static final String DEFAULT_TARGET_EXCEL_DIR = "target/generated-excel/";
 
-    static List<HolidayCfg> holidayCfgs = null;
+    static List<User> users = new ArrayList<>();
+    static List<HolidayCfg> holidayCfgs = new ArrayList<>();
 
     @BeforeClass
     public static void setUp() {
-        users = new ArrayList<>();
-        holidayCfgs = new ArrayList<>();
 
         for (int i = 0; i < 1000; i++) {
             User user = new User();
@@ -48,6 +47,11 @@ public class ExcelWriterTest {
             holidayCfg.setHolidayDate(Calendar.getInstance().getTime());
             holidayCfg.setIsWork(RandomStringUtils.random(1, '是', '否'));
             holidayCfgs.add(holidayCfg);
+        }
+
+        File targetPath = new File(DEFAULT_TARGET_EXCEL_DIR);
+        if (!targetPath.exists()) {
+            targetPath.mkdirs();
         }
     }
 
@@ -66,7 +70,7 @@ public class ExcelWriterTest {
             userComplexHeaders.add(userComplexHeader);
         }
 
-        try (FileOutputStream fos = new FileOutputStream(new File("custom_complex_header.xlsx"))) {
+        try (FileOutputStream fos = new FileOutputStream(new File(DEFAULT_TARGET_EXCEL_DIR + "custom_complex_header.xlsx"))) {
             ExcelWriter.newInstance().addData(userComplexHeaders).write(fos);
         } catch (IOException e) {
             e.printStackTrace();
@@ -90,7 +94,7 @@ public class ExcelWriterTest {
             userWHS.add(userWH);
         }
 
-        try (FileOutputStream fos = new FileOutputStream(new File("custom_width_height.xlsx"))) {
+        try (FileOutputStream fos = new FileOutputStream(new File(DEFAULT_TARGET_EXCEL_DIR + "custom_width_height.xlsx"))) {
             ExcelWriter.newInstance().addData(userWHS).write(fos);
         } catch (IOException e) {
             e.printStackTrace();
@@ -113,7 +117,7 @@ public class ExcelWriterTest {
             userStyles.add(userStyle);
         }
 
-        try (FileOutputStream fos = new FileOutputStream(new File("greent_cell_style.xlsx"))) {
+        try (FileOutputStream fos = new FileOutputStream(new File(DEFAULT_TARGET_EXCEL_DIR + "greent_cell_style.xlsx"))) {
             ExcelWriter.newInstance().addData(userStyles).write(fos);
         } catch (IOException e) {
             e.printStackTrace();
@@ -135,7 +139,7 @@ public class ExcelWriterTest {
             userPagings.add(userPaging);
         }
 
-        try (FileOutputStream fos = new FileOutputStream(new File("paging_sheet_data.xlsx"))) {
+        try (FileOutputStream fos = new FileOutputStream(new File(DEFAULT_TARGET_EXCEL_DIR + "paging_sheet_data.xlsx"))) {
             ExcelWriter.newInstance().addData(userPagings).write(fos);
         } catch (IOException e) {
             e.printStackTrace();
@@ -147,7 +151,7 @@ public class ExcelWriterTest {
      */
     @Test
     public void testWriteMulitSheetData() {
-        try (FileOutputStream fos = new FileOutputStream(new File("multi_sheet_data.xlsx"))) {
+        try (FileOutputStream fos = new FileOutputStream(new File(DEFAULT_TARGET_EXCEL_DIR + "multi_sheet_data.xlsx"))) {
             ExcelWriter.newInstance().addData(holidayCfgs).addData(users).write(fos);
             //ExcelWriter.newInstance().addData(users, holidayCfgs).write(fos);
         } catch (IOException e) {
@@ -160,7 +164,7 @@ public class ExcelWriterTest {
      */
     @Test
     public void testWriteSingleSheetData() {
-        try (FileOutputStream fos = new FileOutputStream(new File("single_sheet_data.xlsx"))) {
+        try (FileOutputStream fos = new FileOutputStream(new File(DEFAULT_TARGET_EXCEL_DIR + "single_sheet_data.xlsx"))) {
             ExcelWriter.newInstance().addData(users).write(fos);
         } catch (IOException e) {
             e.printStackTrace();
@@ -172,7 +176,7 @@ public class ExcelWriterTest {
      */
     @Test
     public void testWriteTemplateXlsxWithModelAndData() {
-        try (FileOutputStream fos = new FileOutputStream(new File("template_by_model_data.xlsx"))) {
+        try (FileOutputStream fos = new FileOutputStream(new File(DEFAULT_TARGET_EXCEL_DIR + "template_by_model_data.xlsx"))) {
             ExcelWriter.newTemplateInstance(HolidayCfg.class).addData(users).write(fos);
         } catch (IOException e) {
             e.printStackTrace();
@@ -184,7 +188,7 @@ public class ExcelWriterTest {
      */
     @Test
     public void testWriteTemplateXlsxWdithMulitModel() {
-        try (FileOutputStream fos = new FileOutputStream(new File("template_by_models.xlsx"))) {
+        try (FileOutputStream fos = new FileOutputStream(new File(DEFAULT_TARGET_EXCEL_DIR + "template_by_models.xlsx"))) {
             ExcelWriter.newTemplateInstance(HolidayCfg.class, User.class).write(fos);
         } catch (IOException e) {
             e.printStackTrace();
@@ -196,7 +200,7 @@ public class ExcelWriterTest {
      */
     @Test
     public void testWriteTempateXlsxWidthSingleModel() {
-        try (FileOutputStream fos = new FileOutputStream(new File("template_by_model.xlsx"))) {
+        try (FileOutputStream fos = new FileOutputStream(new File(DEFAULT_TARGET_EXCEL_DIR + "template_by_model.xlsx"))) {
             ExcelWriter.newTemplateInstance(HolidayCfg.class).write(fos);
         } catch (IOException e) {
             e.printStackTrace();
