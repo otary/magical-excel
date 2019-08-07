@@ -41,7 +41,7 @@ public class ExcelDutyAdjustRecord {
      **/
     @ExcelExportColumn(colIndex = 6, title = "被调班人员用户名")
     @ExcelImportColumn(colIndex = 6, allowBlank = false)
-    private Long beAdjustStaff;
+    private String beAdjustStaff;
 
     /**
      * 被调班时间
@@ -110,11 +110,11 @@ public class ExcelDutyAdjustRecord {
         this.beAdjustOrder = beAdjustOrder;
     }
 
-    public Long getBeAdjustStaff() {
+    public String getBeAdjustStaff() {
         return beAdjustStaff;
     }
 
-    public void setBeAdjustStaff(Long beAdjustStaff) {
+    public void setBeAdjustStaff(String beAdjustStaff) {
         this.beAdjustStaff = beAdjustStaff;
     }
 
