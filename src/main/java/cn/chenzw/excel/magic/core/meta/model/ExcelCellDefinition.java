@@ -104,6 +104,7 @@ public class ExcelCellDefinition {
 
         @Override
         public boolean matches(String name, Attributes attributes) {
+
             if (ExcelConstants.CELL_TAG.equals(name)) {
                 // 字符串类型 t="s"
                 if (ExcelConstants.CELL_STRING_TYPE.equals(attributes.getValue(ExcelConstants.CELL_TYPE_ATTR))) {
@@ -134,13 +135,14 @@ public class ExcelCellDefinition {
 
         @Override
         public boolean matches(String name, Attributes attributes) {
+
             if (ExcelConstants.CELL_TAG.equals(name)) {
-                if (!StringUtils.isBlank(attributes.getValue(ExcelConstants.CELL_STYLE_ATTR))) {
+                if (!StringUtils.isBlank(attributes.getValue(ExcelConstants.CELL_STYLE_ATTR)) ) {
                     int styleIndex = Integer.parseInt(attributes.getValue(ExcelConstants.CELL_STYLE_ATTR));
                     XSSFCellStyle cellStyle = this.stylesTable.getStyleAt(styleIndex);
                     short dataFormatIndex = cellStyle.getDataFormat();
                     String dataFormatString = cellStyle.getDataFormatString();
-                    if (StringUtils.containsAny(dataFormatString, "y", "m", "d", "h", "s")) {
+                    if (StringUtils.containsAny(dataFormatString, "y", "m", "d", "h", "s", "Y", "M","D")) {
                         return true;
                     }
                 }
