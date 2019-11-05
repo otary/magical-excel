@@ -100,7 +100,11 @@ public class XlsxAnalysisHandler extends DefaultHandler {
 
         // 单元格
         if (ExcelConstants.CELL_TAG.equals(name)) {
-            this.curExcelCell.setCellValue(StringUtils.trim(curExcelCell.getCellType().getValue(tagValue)));
+            if (StringUtils.isEmpty(tagValue)) {
+                this.curExcelCell.setCellValue("");
+            } else {
+                this.curExcelCell.setCellValue(StringUtils.trim(curExcelCell.getCellType().getValue(tagValue)));
+            }
             this.curExcelRow.addExceCell(this.curExcelCell);
         }
     }
