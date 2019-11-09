@@ -4,6 +4,8 @@
 ![](https://img.shields.io/badge/poi-3.17-yellowgreen)
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/b1b9bc199a124f348801dcdb84905bf7)](https://www.codacy.com/manual/otary/magical-excel?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=otary/magical-excel&amp;utm_campaign=Badge_Grade)
+[![Build Status](https://travis-ci.org/otary/magical-excel.svg?branch=master)](https://travis-ci.org/otary/magical-excel)
+[![codecov](https://codecov.io/gh/otary/magical-excel/branch/master/graph/badge.svg)](https://codecov.io/gh/otary/magical-excel)
 
 
 ## 环境配置
