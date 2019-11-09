@@ -231,12 +231,11 @@ public abstract class AbstractExcelWriterExecutor implements ExcelExecutor, Exce
 
 
                     // 设置条纹
-                    if (sheetDefinition.isRowStriped()) {
-                        if (rowIndex % 2 == 0) {
-                            ((XSSFCellStyle) cellStyle)
-                                    .setFillForegroundColor(new XSSFColor(sheetDefinition.getRowStripeColor()));
-                            cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-                        }
+                    if (sheetDefinition.isRowStriped() && (rowIndex % 2 == 0)) {
+                        ((XSSFCellStyle) cellStyle)
+                                .setFillForegroundColor(new XSSFColor(sheetDefinition.getRowStripeColor()));
+                        cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
                     }
                     cell.setCellStyle(cellStyle);
 
@@ -292,6 +291,7 @@ public abstract class AbstractExcelWriterExecutor implements ExcelExecutor, Exce
 
     /**
      * 获取列的下拉校验值列表
+     *
      * @param field
      * @return
      */
@@ -345,7 +345,7 @@ public abstract class AbstractExcelWriterExecutor implements ExcelExecutor, Exce
                     if (CellStyleBuilder.class.isAssignableFrom(clazz)) {
                         cellStyleBuilder = (CellStyleBuilder) clazz.newInstance();
                     } else {
-                        // @TODO 抛出异常
+                        throw new ExcelWriterException("CellStyle [" + clazz + "] not assignable from CellStyleBuilder.class");
                     }
                 } catch (InstantiationException e) {
                     e.printStackTrace();

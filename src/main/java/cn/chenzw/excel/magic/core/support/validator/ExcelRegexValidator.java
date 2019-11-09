@@ -7,17 +7,15 @@ import java.util.regex.Pattern;
 
 public class ExcelRegexValidator implements AbstractExcelColumnValidator<ExcelRegexValue> {
 
-
     private Pattern pattern;
-    private String regex;
 
     @Override
     public void initialize(ExcelRegexValue excelRegexValue) {
-        this.regex = excelRegexValue.regex();
-        if (StringUtils.isBlank(this.regex)) {
+        String regex = excelRegexValue.regex();
+        if (StringUtils.isBlank(regex)) {
             throw new IllegalArgumentException("正则表达式为空!");
         }
-        this.pattern = Pattern.compile(this.regex);
+        this.pattern = Pattern.compile(regex);
     }
 
     @Override

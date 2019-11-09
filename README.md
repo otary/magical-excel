@@ -1,10 +1,16 @@
 ## mgical-excel：基于注解的Excel导入导出开源组件
 
+![](https://img.shields.io/badge/jdk-1.7%2B-brightgreen)
+![](https://img.shields.io/badge/poi-3.17-yellowgreen)
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/b1b9bc199a124f348801dcdb84905bf7)](https://www.codacy.com/manual/otary/magical-excel?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=otary/magical-excel&amp;utm_campaign=Badge_Grade)
+
+
 ## 环境配置
 
 #### maven配置
 
-````
+```` xml
 <dependency>
 	<groupId>cn.chenzw.excel</groupId>
     <artifactId>magical-excel</artifactId>
@@ -14,7 +20,8 @@
 
 
 #### 依赖
-````
+
+```` xml
 <dependency>
     <groupId>org.apache.poi</groupId>
     <artifactId>poi</artifactId>
@@ -36,13 +43,9 @@
     <version>1.0</version>
 </dependency>
  ````
+
  
- #### JDK
- - JDK1.7+
- 
- ---
-  
-  
+---
   
 ## 核心注解
 
@@ -88,7 +91,7 @@
 
 #### 模版导出
 
-```
+``` java
 // 单sheet模版
 try (FileOutputStream fos = new FileOutputStream(new File("template_by_model.xlsx"))) {
    ExcelWriter.newTemplateInstance(HolidayCfg.class).write(fos);
@@ -106,7 +109,7 @@ try (FileOutputStream fos = new FileOutputStream(new File("template_by_models.xl
 ````
 
 
-````
+```` java
 import cn.chenzw.excel.magic.core.meta.annotation.*;
 import cn.chenzw.excel.magic.core.meta.annotation.converter.ExcelKVConvert;
 import cn.chenzw.excel.magic.core.meta.annotation.datavalidation.ExcelStringList;
@@ -153,7 +156,7 @@ public class User {
 
 #### 数据导出(基础)
 
-````
+```` java
 // 单Sheet数据导出
 try (FileOutputStream fos = new FileOutputStream(new File("single_sheet_data.xlsx"))) {
     ExcelWriter.newInstance().addData(users).write(fos);
@@ -173,7 +176,8 @@ try (FileOutputStream fos = new FileOutputStream(new File("multi_sheet_data.xlsx
 
 
 #### Sheet分页
-````
+
+```` java
 // 每个Sheet页50条数据
 @ExcelExport(sheetName = "用户数据", maxRowsPerSheet = 50)
 public class UserPaging {
@@ -183,7 +187,8 @@ public class UserPaging {
 ````
 
 #### 自定义单元格样式
-````
+
+```` java
 @ExcelExport(sheetName = "用户数据", rowStriped = true, rowStripeColor = "E2EFDA")
 public class UserStyle {
 
@@ -206,7 +211,7 @@ public class UserStyle {
 
 #### 自定义行高、列宽
 
-````
+```` java
 // 指定标题行高度、数据行高度
 @ExcelExport(sheetName = "用户数据", titleRowHeight = 25, dataRowHeight = 20)
 public class UserWH {
@@ -226,7 +231,7 @@ public class UserWH {
 
 #### 自定义复杂表头
 
-````
+```` java
 @ExcelComplexHeader({
         @CellRange(firstCol = 1, lastCol = 4, firstRow = 1, lastRow = 2, title = "用户数据", cellStyleBuilder = LightGreenTitleCellStyleBuilder.class),
         @CellRange(firstRow = 3, lastRow = 3, firstCol = 1, lastCol = 2, title = "基本信息", cellStyleBuilder = LightGreenTitleCellStyleBuilder.class),
@@ -240,13 +245,14 @@ public class UserComplexHeader {
 
 ----
 #### 导入
-````
+
+```` java
 InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("test.xlsx");
 ExcelReader excelReader = new ExcelReader(is);
 List<HolidayCfg> holidayCfgs = excelReader.read(HolidayCfg.class);
 ````
 
-````
+```` java
 @ExcelImport(sheetIndex = 1, firstDataRow = 2)
 public class HolidayCfg {
 

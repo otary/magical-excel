@@ -43,10 +43,8 @@ public class ExcelReaderExecutor<T> extends AbstractExcelReaderExecutor implemen
             return;
         }
 
-        if (!this.isEmptyRow(row)) {
-            if (this.validate(row)) {
-                this.format(row);
-            }
+        if (!this.isEmptyRow(row) && this.validate(row)) {
+            this.format(row);
         }
     }
 

@@ -24,8 +24,6 @@ import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.util.ZipSecureFile;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -44,18 +42,15 @@ import java.util.*;
  */
 public abstract class AbstractExcelReaderExecutor<T> implements ExcelReaderLifecycle, ExcelExecutor {
 
-    private static final Logger logger = LoggerFactory.getLogger(ExcelReaderExecutor.class);
-
     protected int curSheetIndex = 0;
     protected int curRowIndex;
     protected int curColIndex;
     protected int totalRows;
 
-
     protected ExcelReaderContext readerContext;
     protected ExcelSheetDefinition curSheet;
 
-    private XSSFReader xssfReader;
+    // private XSSFReader xssfReader;
     private List<T> datas = new ArrayList<>();
     private Cache<String, List<AbstractExcelColumnValidator>> columnValidatorCache;
     private Cache<String, List<AbstractExcelColumnConverter>> columnConverterCache;
@@ -67,10 +62,6 @@ public abstract class AbstractExcelReaderExecutor<T> implements ExcelReaderLifec
         this.columnConverterCache = CacheBuilder.newBuilder().build();
     }
 
-    // @TODO
-    private void init() {
-
-    }
 
     protected abstract ExcelPerRowProcessor getExcelRowProcess();
 
@@ -108,15 +99,19 @@ public abstract class AbstractExcelReaderExecutor<T> implements ExcelReaderLifec
         // 延迟解析比率
         ZipSecureFile.setMinInflateRatio(-1.0d);
         try (OPCPackage pkg = OPCPackage.open(readerContext.getInputStream())) {
-            this.xssfReader = new XSSFReader(pkg);
+            XSSFReader xssfReader = new XSSFReader(pkg);
             XMLReader parser = XMLReaderFactory.createXMLReader("com.sun.org.apache.xerces.internal.parsers.SAXParser");
             ContentHandler xlsxAnalysisHandler = new XlsxAnalysisHandler(xssfReader.getStylesTable(),
                     xssfReader.getSharedStringsTable(), getExcelRowProcess());
             parser.setContentHandler(xlsxAnalysisHandler);
 
-            Iterator<InputStream> sheets = this.xssfReader.getSheetsData();
+            Iterator<InputStream> sheets = xssfReader.getSheetsData();
             while (sheets.hasNext()) {
                 InputStream sheet = sheets.next();
+
+               // InputStream copy = IOExtUtils.copy(sheet);
+               // System.out.println(new String(IOUtils.toByteArray(copy)));
+
                 if (sheetdefinitions.containsKey(this.curSheetIndex + 1)) {
                     this.curSheetIndex++;
                     InputSource sheetSource = new InputSource(sheet);
@@ -141,8 +136,6 @@ public abstract class AbstractExcelReaderExecutor<T> implements ExcelReaderLifec
         } catch (OpenXML4JException e) {
             e.printStackTrace();
         }
-
-
         return null;
     }
 
@@ -247,10 +240,7 @@ public abstract class AbstractExcelReaderExecutor<T> implements ExcelReaderLifec
      * @return
      */
     protected boolean isTitleRow(ExcelRowDefinition row) {
-        if (row.getRowIndex() < this.curSheet.getFirstDataRow()) {
-            return true;
-        }
-        return false;
+        return  row.getRowIndex() < this.curSheet.getFirstDataRow();
     }
 
     private ExcelCellDefinition getCell(List<ExcelCellDefinition> excelCells, int colIndex) {
