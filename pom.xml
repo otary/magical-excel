@@ -87,6 +87,43 @@
                 <targetPath>${build.testOutputDirectory}/excel-template</targetPath>
             </testResource>
         </testResources>
+
+        <plugins>
+            <!-- 代码质量分析 -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+                <version>2.7</version>
+                <configuration>
+                    <formats>
+                        <format>html</format>
+                        <format>xml</format>
+                    </formats>
+                    <check/>
+                </configuration>
+            </plugin>
+            <!--<plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.7.9</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>-->
+            <!-- /代码质量分析 -->
+        </plugins>
+
     </build>
 
 
@@ -214,4 +251,5 @@
             </build>
         </profile>
     </profiles>
+
 </project>
