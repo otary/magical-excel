@@ -109,8 +109,8 @@ public abstract class AbstractExcelReaderExecutor<T> implements ExcelReaderLifec
             while (sheets.hasNext()) {
                 InputStream sheet = sheets.next();
 
-               // InputStream copy = IOExtUtils.copy(sheet);
-               // System.out.println(new String(IOUtils.toByteArray(copy)));
+             /*   InputStream copy = cn.chenzw.toolkit.io.IOExtUtils.copy(sheet);
+                System.out.println(org.apache.commons.io.IOUtils.toString(copy));*/
 
                 if (sheetdefinitions.containsKey(this.curSheetIndex + 1)) {
                     this.curSheetIndex++;
@@ -240,7 +240,7 @@ public abstract class AbstractExcelReaderExecutor<T> implements ExcelReaderLifec
      * @return
      */
     protected boolean isTitleRow(ExcelRowDefinition row) {
-        return  row.getRowIndex() < this.curSheet.getFirstDataRow();
+        return row.getRowIndex() < this.curSheet.getFirstDataRow();
     }
 
     private ExcelCellDefinition getCell(List<ExcelCellDefinition> excelCells, int colIndex) {

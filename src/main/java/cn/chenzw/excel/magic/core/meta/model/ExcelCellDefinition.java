@@ -9,14 +9,22 @@ import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
+ * Excel字段类型定义
+ *
  * @author chenzw
  */
 public class ExcelCellDefinition {
+
+    private static final Logger logger = LoggerFactory.getLogger(ExcelCellDefinition.class);
 
     private Integer sheetIndex;
     private Integer rowIndex;
@@ -82,6 +90,7 @@ public class ExcelCellDefinition {
 
     /**
      * 单元格格式
+     *
      * @author chenzw
      */
     public interface ExcelCellType {
@@ -108,6 +117,9 @@ public class ExcelCellDefinition {
             if (ExcelConstants.CELL_TAG.equals(name)) {
                 // 字符串类型 t="s"
                 if (ExcelConstants.CELL_STRING_TYPE.equals(attributes.getValue(ExcelConstants.CELL_TYPE_ATTR))) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("The [{}] matches [{}]", getCellAttributes(attributes), this.getClass().getName());
+                    }
                     return true;
                 }
             }
@@ -137,12 +149,15 @@ public class ExcelCellDefinition {
         public boolean matches(String name, Attributes attributes) {
 
             if (ExcelConstants.CELL_TAG.equals(name)) {
-                if (!StringUtils.isBlank(attributes.getValue(ExcelConstants.CELL_STYLE_ATTR)) ) {
+                // s不为空
+                if (!StringUtils.isBlank(attributes.getValue(ExcelConstants.CELL_STYLE_ATTR))) {
                     int styleIndex = Integer.parseInt(attributes.getValue(ExcelConstants.CELL_STYLE_ATTR));
                     XSSFCellStyle cellStyle = this.stylesTable.getStyleAt(styleIndex);
-                    short dataFormatIndex = cellStyle.getDataFormat();
                     String dataFormatString = cellStyle.getDataFormatString();
-                    if (StringUtils.containsAny(dataFormatString, "y", "m", "d", "h", "s", "Y", "M","D")) {
+                    if (StringUtils.containsAny(dataFormatString, "y", "m", "d", "h", "s", "Y", "M", "D")) {
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("The [{} - {}] matches [{}]!", getCellAttributes(attributes), dataFormatString, this.getClass().getName());
+                        }
                         return true;
                     }
                 }
@@ -171,13 +186,16 @@ public class ExcelCellDefinition {
         @Override
         public boolean matches(String name, Attributes attributes) {
             if (ExcelConstants.CELL_TAG.equals(name)) {
-                // 非字符串
+                // s不为空
                 if (!StringUtils.isBlank(attributes.getValue(ExcelConstants.CELL_STYLE_ATTR))) {
 
                     String dataFormat = ExcelXmlCodecUtils
                             .getDataFormat(Integer.parseInt(attributes.getValue(ExcelConstants.CELL_STYLE_ATTR)),
                                     this.stylesTable);
-                    if (StringUtils.containsAny(dataFormat, "#", "0", "General")) {
+                    if (StringUtils.containsAny(dataFormat, "#", "General")) {
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("The [{} - {}] matches [{}]!", getCellAttributes(attributes), dataFormat, this.getClass().getName());
+                        }
                         return true;
                     }
                 }
@@ -202,6 +220,9 @@ public class ExcelCellDefinition {
             if (ExcelConstants.CELL_TAG.equals(name)) {
                 // t="inlinStr"
                 if (ExcelConstants.CELL_INLINE_STR_TYPE.equals(attributes.getValue(ExcelConstants.CELL_TYPE_ATTR))) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("The [{}] matches [{}]", getCellAttributes(attributes), this.getClass().getName());
+                    }
                     return true;
                 }
             }
@@ -226,6 +247,9 @@ public class ExcelCellDefinition {
             if (ExcelConstants.CELL_TAG.equals(name)) {
                 // t = "b"
                 if (ExcelConstants.CELL_BOOLEAN_TYPE.equals(attributes.getValue(ExcelConstants.CELL_TYPE_ATTR))) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("The [{}] matches [{}]", getCellAttributes(attributes), this.getClass().getName());
+                    }
                     return true;
                 }
             }
@@ -249,6 +273,9 @@ public class ExcelCellDefinition {
             if (ExcelConstants.CELL_TAG.equals(name)) {
                 // t = "e"
                 if (ExcelConstants.CELL_ERROR_TYPE.equals(attributes.getValue(ExcelConstants.CELL_TYPE_ATTR))) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("The [{}] matches [{}]", getCellAttributes(attributes), this.getClass().getName());
+                    }
                     return true;
                 }
             }
@@ -266,6 +293,9 @@ public class ExcelCellDefinition {
 
         @Override
         public boolean matches(String name, Attributes attributes) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("The [{}] matches [{}]", getCellAttributes(attributes), this.getClass().getName());
+            }
             return true;
         }
 
@@ -275,5 +305,14 @@ public class ExcelCellDefinition {
         }
     }
 
+
+    private static String getCellAttributes(Attributes attributes) {
+        int length = attributes.getLength();
+        List<String> attrs = new ArrayList<>();
+        for (int i = 0; i < length; i++) {
+            attrs.add(attributes.getQName(i) + "=" + attributes.getValue(i));
+        }
+        return StringUtils.join(attrs);
+    }
 
 }

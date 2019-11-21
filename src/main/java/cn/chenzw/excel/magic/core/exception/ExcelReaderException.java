@@ -83,8 +83,6 @@ public class ExcelReaderException extends ExcelException {
 
     @Override
     public String toString() {
-        return String.format("第 %d 个Sheet页的第 %d 行第 %d 列的数据[ %s ]读取异常! 可能原因:[%s]! \n 详细堆栈信息: [%s] ", this.sheetIndex,
-                this.rowIndex, this.colIndex, this.cellValue, this.message,
-                (this.cause == null ? "" : ExceptionUtils.getStackTrace(this.cause)));
+        return getHumaneMessage();
     }
 }
