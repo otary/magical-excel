@@ -1,5 +1,6 @@
 package cn.chenzw.excel.magic.core.meta.style;
 
+import cn.chenzw.excel.magic.core.meta.model.ExcelCellStyleDefinition;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
@@ -9,9 +10,11 @@ import org.apache.poi.xssf.usermodel.XSSFColor;
  */
 public class LightGreenTitleCellStyleBuilder implements CellStyleBuilder {
 
+
     @Override
-    public CellStyle build(Workbook workbook, Cell cell) {
-        XSSFCellStyle cellStyle = (XSSFCellStyle) workbook.createCellStyle();
+    public CellStyle build(Workbook workbook, ExcelCellStyleDefinition cellStyleDefinition, Cell cell) {
+        XSSFCellStyle cellStyle = (XSSFCellStyle) cellStyleDefinition.getCellStyle();
+        Font font = cellStyleDefinition.getFont();
 
         // 前景色
         cellStyle.setFillForegroundColor(new XSSFColor(new java.awt.Color(112, 173, 71)));
@@ -22,10 +25,8 @@ public class LightGreenTitleCellStyleBuilder implements CellStyleBuilder {
         cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
         // 黑体
-        Font font = workbook.createFont();
         font.setFontHeightInPoints((short) 12);
         font.setBold(true);
-        cellStyle.setFont(font);
 
         return cellStyle;
     }

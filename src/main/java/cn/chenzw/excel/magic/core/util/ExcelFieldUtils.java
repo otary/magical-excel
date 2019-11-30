@@ -1,9 +1,9 @@
 package cn.chenzw.excel.magic.core.util;
 
-import cn.chenzw.excel.magic.core.constants.ExcelConstants;
-import cn.chenzw.excel.magic.core.exception.ExcelException;
+
 import cn.chenzw.excel.magic.core.meta.model.ExcelCellDefinition;
 import cn.chenzw.excel.magic.core.meta.model.ExcelRowDefinition;
+import cn.chenzw.toolkit.commons.ConvertExtUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -59,17 +59,27 @@ public class ExcelFieldUtils {
 
     /**
      * 给字段赋值
+     *
      * @param field
      * @param o
      * @param cellValue
      * @param dateFormat
      * @throws IllegalAccessException
-     * @throws ParseException
      */
     public static void setFieldValue(Field field, Object o, Object cellValue, String dateFormat)
-            throws IllegalAccessException, ParseException {
+            throws IllegalAccessException {
 
         if (field.getType() == String.class) {
+            if (!StringUtils.isBlank(dateFormat)) {
+                try {
+                    field.set(o, DateUtils.parseDate((String) cellValue, dateFormat));
+                } catch (ParseException e) {
+                }
+            }
+        }
+        field.set(o, ConvertExtUtils.convert(field.getType(), cellValue));
+
+        /*if (field.getType() == String.class) {
             if (!StringUtils.isBlank(dateFormat)) {
                 Date date = tryParseDate((String) cellValue, dateFormat);
                 field.set(o, DateFormatUtils.format(date, dateFormat));
@@ -80,7 +90,11 @@ public class ExcelFieldUtils {
             field.set(o, cellValue);
         } else if (field.getType() == Integer.class) {
             if (cellValue instanceof String) {
-                field.set(o, Integer.valueOf((String) cellValue));
+                if (((String) cellValue).contains(".")) {
+                    field.set(o, Double.valueOf((String) cellValue).intValue());
+                } else {
+                    field.set(o, Integer.valueOf((String) cellValue));
+                }
             } else {
                 field.set(o, cellValue);
             }
@@ -96,13 +110,15 @@ public class ExcelFieldUtils {
             field.set(o, cellValue);
         } else if (field.getType() == BigDecimal.class) {
             field.set(o, cellValue);
+        } else if (field.getType() == Double.class) {
+            field.set(o, Double.valueOf((String) cellValue));
         } else {
             field.set(o, cellValue);
-        }
+        }*/
     }
 
 
-    private static Date tryParseDate(String dateValue, String tryDateFormat) throws ParseException {
+   /* private static Date tryParseDate(String dateValue, String tryDateFormat) throws ParseException {
         if (!StringUtils.isBlank(tryDateFormat)) {
             try {
                 return DateUtils.parseDate(dateValue, tryDateFormat);
@@ -110,16 +126,12 @@ public class ExcelFieldUtils {
                 for (String dateFormat : TRY_DATE_FORMAT_LIST) {
                     try {
                         return DateUtils.parseDate(dateValue, dateFormat);
-                    } catch (ParseException e1) { }
+                    } catch (ParseException e1) {
+                    }
                 }
             }
         }
         throw new ParseException("日期转换失败!", 0);
-    }
+    }*/
 
-    public static void main(String[] args) throws ParseException {
-        Date date = DateUtils.parseDate("2014/12/02", "yyyy/MM/dd");
-        //Sun Feb 02 00:00:00 CST 2014
-        System.out.println(date);
-    }
 }

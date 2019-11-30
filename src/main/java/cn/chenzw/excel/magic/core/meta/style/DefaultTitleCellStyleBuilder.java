@@ -1,5 +1,6 @@
 package cn.chenzw.excel.magic.core.meta.style;
 
+import cn.chenzw.excel.magic.core.meta.model.ExcelCellStyleDefinition;
 import org.apache.poi.ss.usermodel.*;
 
 /**
@@ -7,17 +8,19 @@ import org.apache.poi.ss.usermodel.*;
  */
 public class DefaultTitleCellStyleBuilder implements CellStyleBuilder {
 
-    @Override
-    public CellStyle build(Workbook workbook, Cell cell) {
-        CellStyle cellStyle = workbook.createCellStyle();
 
-        Font font = workbook.createFont();
+    @Override
+    public CellStyle build(Workbook workbook, ExcelCellStyleDefinition cellStyleDefinition, Cell cell) {
+        CellStyle cellStyle = cellStyleDefinition.getCellStyle();
+        Font font = cellStyleDefinition.getFont();
+
+        // 设置字体
         font.setBold(true);
-        cellStyle.setFont(font);
 
         // 设置对齐方式
         cellStyle.setAlignment(HorizontalAlignment.CENTER);
         cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
         return cellStyle;
     }
 }

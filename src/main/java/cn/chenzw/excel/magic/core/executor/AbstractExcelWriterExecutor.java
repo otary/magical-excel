@@ -9,6 +9,7 @@ import cn.chenzw.excel.magic.core.meta.annotation.ExcelComplexHeader;
 import cn.chenzw.excel.magic.core.meta.annotation.ExcelDataFormat;
 import cn.chenzw.excel.magic.core.meta.annotation.ExcelExportColumn;
 import cn.chenzw.excel.magic.core.meta.annotation.datavalidation.ExcelDataValidation;
+import cn.chenzw.excel.magic.core.meta.model.ExcelCellStyleDefinition;
 import cn.chenzw.excel.magic.core.meta.model.ExcelSheetDefinition;
 import cn.chenzw.excel.magic.core.meta.model.ExcelWriterSheetDefinition;
 import cn.chenzw.excel.magic.core.meta.style.CellStyleBuilder;
@@ -16,9 +17,11 @@ import cn.chenzw.excel.magic.core.support.dataconstraint.ExcelDataValidationCons
 import cn.chenzw.excel.magic.core.util.ExcelFieldUtils;
 import cn.chenzw.excel.magic.core.util.ListUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellRangeAddressList;
+import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
@@ -29,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 /**
@@ -54,9 +58,7 @@ public abstract class AbstractExcelWriterExecutor implements ExcelExecutor, Exce
     }
 
     @Override
-    public void beforeCallback() {
-
-    }
+    public abstract void beforeCallback();
 
     @Override
     public void sheetPaging() {
@@ -108,7 +110,7 @@ public abstract class AbstractExcelWriterExecutor implements ExcelExecutor, Exce
                     // 设置样式
                     CellStyleBuilder cellStyleBuilder = this.cellStyleCache
                             .getCellStyleInstance(cellRange.cellStyleBuilder());
-                    cell.setCellStyle(cellStyleBuilder.build(this.sxssfWorkbook, cell));
+                    cell.setCellStyle(cellStyleBuilder.build(this.sxssfWorkbook, new ExcelCellStyleDefinition(this.sxssfWorkbook), cell));
                 }
             }
         }
@@ -185,7 +187,7 @@ public abstract class AbstractExcelWriterExecutor implements ExcelExecutor, Exce
                 CellStyleBuilder cellStyleBuilder = this.cellStyleCache
                         .getCellStyleInstance(exportColumn.titleCellStyleBuilder());
 
-                CellStyle cellStyle = cellStyleBuilder.build(this.sxssfWorkbook, cell);
+                CellStyle cellStyle = cellStyleBuilder.build(this.sxssfWorkbook, new ExcelCellStyleDefinition(this.sxssfWorkbook), cell);
                 cell.setCellStyle(cellStyle);
                 if (!exportColumn.autoWidth()) {
                     sheet.setColumnWidth(colIndex - 1, exportColumn.colWidth() * 256);
@@ -194,14 +196,22 @@ public abstract class AbstractExcelWriterExecutor implements ExcelExecutor, Exce
         }
     }
 
+
     @Override
     public void initData() {
         for (Map.Entry<Integer, ExcelSheetDefinition> sheetDefinitionEntry : sheetDefinitions.entrySet()) {
             this.curSheetIndex = sheetDefinitionEntry.getKey();
             ExcelWriterSheetDefinition sheetDefinition = (ExcelWriterSheetDefinition) sheetDefinitionEntry.getValue();
             Sheet sheet = createSheet(sheetDefinitionEntry.getKey(), sheetDefinition.getSheetName());
-
             Map<Integer, Field> columnFields = sheetDefinition.getColumnFields();
+
+            Map<Integer, ExcelCellStyleDefinition> columnCellStyles = sheetDefinition.getColumnCellStyles(sxssfWorkbook);
+
+         /*   CellStyle stripRowStyle = this.sxssfWorkbook.createCellStyle();
+            ((XSSFCellStyle) stripRowStyle).setFillForegroundColor(new XSSFColor(sheetDefinition.getRowStripeColor()));
+            stripRowStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            ((XSSFCellStyle) stripRowStyle).setFillBackgroundColor(new XSSFColor(sheetDefinition.getRowStripeColor()));*/
+
             List<?> rowDatas = sheetDefinition.getRowDatas();
             for (int rowIndex = 0; rowIndex < rowDatas.size(); rowIndex++) {
                 Row row = sheet.createRow(rowIndex + sheetDefinition.getFirstDataRow());
@@ -217,10 +227,23 @@ public abstract class AbstractExcelWriterExecutor implements ExcelExecutor, Exce
                     ExcelExportColumn exportColumn = field.getAnnotation(ExcelExportColumn.class);
                     cell.setCellType(exportColumn.cellType());
 
+
                     // 设置数据样式
-                    CellStyleBuilder cellStyleBuilder = this.cellStyleCache
+                   /* CellStyleBuilder cellStyleBuilder = this.cellStyleCache
                             .getCellStyleInstance(exportColumn.dataCellStyleBuilder());
-                    CellStyle cellStyle = cellStyleBuilder.build(this.sxssfWorkbook, cell);
+                    CellStyle cellStyle = cellStyleBuilder.build(this.sxssfWorkbook, new ExcelCellStyleDefinition(this.sxssfWorkbook),cell);*/
+
+                    ExcelCellStyleDefinition cellStyleDefinition = null;
+                    if (sheetDefinition.isRowStriped()) {
+                        if (rowIndex % 2 == 0) {
+                            cellStyleDefinition = columnCellStyles.get(columnFieldEntry.getKey() * 2 -1);
+                        } else {
+                            cellStyleDefinition = columnCellStyles.get(columnFieldEntry.getKey() * 2);
+                        }
+                    } else {
+                        cellStyleDefinition = columnCellStyles.get(columnFieldEntry.getKey());
+                    }
+                    CellStyle cellStyle = cellStyleDefinition.getCellStyle();
 
                     // 设置数据格式
                     ExcelDataFormat excelDataFormat = exportColumn.dataFormat();
@@ -229,14 +252,10 @@ public abstract class AbstractExcelWriterExecutor implements ExcelExecutor, Exce
                         cellStyle.setDataFormat(dataFormat.getFormat(excelDataFormat.value()));
                     }
 
-
                     // 设置条纹
-                    if (sheetDefinition.isRowStriped() && (rowIndex % 2 == 0)) {
-                        ((XSSFCellStyle) cellStyle)
-                                .setFillForegroundColor(new XSSFColor(sheetDefinition.getRowStripeColor()));
-                        cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-
-                    }
+                    /*if (sheetDefinition.isRowStriped() && (rowIndex % 2 == 0)) {
+                        cellStyle.cloneStyleFrom(stripRowStyle);
+                    }*/
                     cell.setCellStyle(cellStyle);
 
                     try {
@@ -264,9 +283,7 @@ public abstract class AbstractExcelWriterExecutor implements ExcelExecutor, Exce
     }
 
     @Override
-    public void afterCallback() {
-
-    }
+    public abstract void afterCallback();
 
     @Override
     public <T> List<T> executeRead() {

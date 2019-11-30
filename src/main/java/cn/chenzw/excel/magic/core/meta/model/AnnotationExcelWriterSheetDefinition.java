@@ -9,6 +9,12 @@ import cn.chenzw.excel.magic.core.meta.annotation.ExcelExport;
 import cn.chenzw.excel.magic.core.meta.annotation.ExcelExportColumn;
 import cn.chenzw.excel.magic.core.util.ColorUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFColor;
 
 import java.awt.*;
 import java.lang.annotation.Annotation;
@@ -32,6 +38,7 @@ public class AnnotationExcelWriterSheetDefinition implements ExcelWriterSheetDef
     private Color rowStripeColor;
     private int titleRowHeight;
     private int dataRowHeight;
+    private Map<Integer, ExcelCellStyleDefinition> columnCellStyles;
 
 
     public AnnotationExcelWriterSheetDefinition(Class<?> clazz, List<?> rowDatas) {
@@ -114,6 +121,34 @@ public class AnnotationExcelWriterSheetDefinition implements ExcelWriterSheetDef
         return this.dataRowHeight;
     }
 
+    @Override
+    public Map<Integer, ExcelCellStyleDefinition> getColumnCellStyles(Workbook workbook) {
+        if (columnCellStyles == null) {
+            columnCellStyles = new HashMap<>();
+
+            if (this.isRowStriped) {
+                // 单双行样式
+                for (Map.Entry<Integer, Field> columnFieldEntry : columnFields.entrySet()) {
+                    CellStyle oddCellStyle = workbook.createCellStyle();
+                    ((XSSFCellStyle) oddCellStyle).setFillForegroundColor(new XSSFColor(this.rowStripeColor));
+                    oddCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+                    columnCellStyles.put(columnFieldEntry.getKey() * 2 - 1,
+                            new ExcelCellStyleDefinition(oddCellStyle, workbook.createFont()));
+
+                    columnCellStyles.put(columnFieldEntry.getKey() * 2,
+                            new ExcelCellStyleDefinition(workbook.createCellStyle(), workbook.createFont()));
+                }
+            } else {
+                for (Map.Entry<Integer, Field> columnFieldEntry : columnFields.entrySet()) {
+                    columnCellStyles.put(columnFieldEntry.getKey(),
+                            new ExcelCellStyleDefinition(workbook.createCellStyle(), workbook.createFont()));
+                }
+            }
+        }
+        return columnCellStyles;
+    }
+
     private void initColumnFields() {
         Field[] fields = this.cls.getDeclaredFields();
         for (Field field : fields) {
@@ -158,6 +193,7 @@ public class AnnotationExcelWriterSheetDefinition implements ExcelWriterSheetDef
 
     /**
      * 根据复杂表头，计算出数据起始行号
+     *
      * @return
      */
     private int calFirstDataRow() {

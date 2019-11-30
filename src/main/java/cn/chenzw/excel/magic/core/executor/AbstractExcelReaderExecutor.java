@@ -223,9 +223,7 @@ public abstract class AbstractExcelReaderExecutor<T> implements ExcelReaderLifec
                 try {
                     ExcelFieldUtils.setFieldValue(field, instance, cellValue,
                             field.getAnnotation(ExcelImportColumn.class).dateFormat());
-                } catch (ParseException e) {
-                    throw new ExcelException("字段值[ " + cellValue + " ]转换失败，字段类型: [" + cell.getCellType() + "]");
-                } catch (IllegalAccessException e) {
+                } catch (Exception e) {
                     throw new ExcelException("字段赋值失败!");
                 }
             }
