@@ -293,14 +293,13 @@ public class UserComplexHeader {
 **@ExcelStringList**
   - value(String[]): 指定允许的值列表（不在列表的值则抛出异常）
   
-  
 **@ExcelRegexValue**
   - regex: 使用正则匹配值（值不匹配则抛出异常）
   - message: 抛出的异常文本
 
 ## 功能示例
 
-#### 模版导出
+### 模版导出
 
 ``` java
 // 单sheet模版
@@ -366,7 +365,7 @@ public class User {
 
 ![效果](images/single_sheet.png)
 
-#### 数据导出(基础)
+### 数据导出(基础)
 
 ```` java
 // 单Sheet数据导出
@@ -387,7 +386,7 @@ try (FileOutputStream fos = new FileOutputStream(new File("multi_sheet_data.xlsx
 ````
 
 
-#### Sheet分页
+### Sheet分页
 
 ```` java
 // 每个Sheet页50条数据
@@ -400,7 +399,7 @@ public class UserPaging {
 
 ![效果](images/multi_sheet.png)
 
-#### 自定义单元格样式
+### 自定义单元格样式
 
 ```` java
 @ExcelExport(sheetName = "用户数据", rowStriped = true, rowStripeColor = "E2EFDA")
@@ -425,7 +424,7 @@ public class UserStyle {
 
 ![效果](images/green_header_style.png)
 
-#### 自定义行高、列宽
+### 自定义行高、列宽
 
 ```` java
 // 指定标题行高度、数据行高度
@@ -447,7 +446,7 @@ public class UserWH {
 
 ![效果](images/complex_header.png)
 
-#### 自定义复杂表头
+### 自定义复杂表头
 
 ```` java
 @ExcelComplexHeader({
@@ -462,7 +461,7 @@ public class UserComplexHeader {
 ````
 
 ----
-#### 导入
+### 导入
 
 ```` java
 InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("test.xlsx");
