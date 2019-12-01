@@ -34,7 +34,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.text.ParseException;
 import java.util.*;
 
 /**
@@ -50,7 +49,6 @@ public abstract class AbstractExcelReaderExecutor<T> implements ExcelReaderLifec
     protected ExcelReaderContext readerContext;
     protected ExcelSheetDefinition curSheet;
 
-    // private XSSFReader xssfReader;
     private List<T> datas = new ArrayList<>();
     private Cache<String, List<AbstractExcelColumnValidator>> columnValidatorCache;
     private Cache<String, List<AbstractExcelColumnConverter>> columnConverterCache;
@@ -62,39 +60,11 @@ public abstract class AbstractExcelReaderExecutor<T> implements ExcelReaderLifec
         this.columnConverterCache = CacheBuilder.newBuilder().build();
     }
 
-
     protected abstract ExcelPerRowProcessor getExcelRowProcess();
 
 
     @Override
     public List<T> executeRead() {
-        /*Map<Integer, ExcelSheetDefinition> sheetdefinitions = readerContext.getSheetDefinitions();
-        // 延迟解析比率
-        ZipSecureFile.setMinInflateRatio(-1.0d);
-        try (OPCPackage pkg = OPCPackage.open(readerContext.getInputStream())) {
-            this.xssfReader = new XSSFReader(pkg);
-            XMLReader parser = XMLReaderFactory.createXMLReader("com.sun.org.apache.xerces.internal.parsers.SAXParser");
-            ContentHandler xlsxAnalysisHandler = new XlsxAnalysisHandler(xssfReader.getStylesTable(),
-                    xssfReader.getSharedStringsTable(), getExcelRowProcess());
-            parser.setContentHandler(xlsxAnalysisHandler);
-            for (Map.Entry<Integer, ExcelSheetDefinition> sheetDefinitionEntry : sheetdefinitions.entrySet()) {
-                this.curSheetIndex = sheetDefinitionEntry.getKey();
-                InputStream sheet = this.xssfReader.getSheet(ExcelConstants.SHEET_PRFIX + this.curSheetIndex);
-                InputSource sheetSource = new InputSource(sheet);
-                parser.parse(sheetSource);
-                sheet.close();
-            }
-            return datas;
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InvalidFormatException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            e.printStackTrace();
-        } catch (OpenXML4JException e) {
-            e.printStackTrace();
-        }*/
-
         Map<Integer, ExcelSheetDefinition> sheetdefinitions = readerContext.getSheetDefinitions();
         // 延迟解析比率
         ZipSecureFile.setMinInflateRatio(-1.0d);
@@ -119,15 +89,6 @@ public abstract class AbstractExcelReaderExecutor<T> implements ExcelReaderLifec
                 }
                 sheet.close();
             }
-
-
-            /*for (Map.Entry<Integer, ExcelSheetDefinition> sheetDefinitionEntry : sheetdefinitions.entrySet()) {
-                this.curSheetIndex = sheetDefinitionEntry.getKey();
-                InputStream sheet = this.xssfReader.getSheet(ExcelConstants.SHEET_PRFIX + this.curSheetIndex);
-                InputSource sheetSource = new InputSource(sheet);
-                parser.parse(sheetSource);
-                sheet.close();
-            }*/
             return datas;
         } catch (IOException e) {
             e.printStackTrace();

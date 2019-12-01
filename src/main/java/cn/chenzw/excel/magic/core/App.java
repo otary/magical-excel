@@ -9,7 +9,6 @@ import org.apache.commons.lang3.math.NumberUtils;
 import java.io.*;
 import java.lang.management.ManagementFactory;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -19,7 +18,13 @@ public class App {
 
     private static final String DEFAULT_XLXS = "user.xlsx";
 
+
     public static void main(String[] args) throws IOException {
+        handleExcelExport();
+        handleExcelImport();
+    }
+
+   /* public static void main(String[] args) throws IOException {
 
         Console console = System.console();
         if (console == null) {
@@ -37,12 +42,14 @@ public class App {
             System.out.println("请输入1或2!");
         }
 
-    }
+    }*/
 
 
     private static void handleExcelExport() throws IOException {
-        Console console = System.console();
-        String rows = console.readLine("请输入要导出的条数: ");
+        // Console console = System.console();
+        //   String rows = console.readLine("请输入要导出的条数: ");
+
+        String rows = "10000";
         if (NumberUtils.isCreatable(rows)) {
             long t1 = System.currentTimeMillis();
             long used1 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed();

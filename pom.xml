@@ -19,7 +19,8 @@
         <commons-lang3.version>3.5</commons-lang3.version>
         <guava.version>20.0</guava.version>
         <logback.version>1.2.3</logback.version>
-        <poi.version>3.15</poi.version>
+        <!--<poi.version>3.15</poi.version>-->
+        <poi.version>4.1.1</poi.version>
     </properties>
 
 

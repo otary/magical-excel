@@ -17,22 +17,18 @@ import cn.chenzw.excel.magic.core.support.dataconstraint.ExcelDataValidationCons
 import cn.chenzw.excel.magic.core.util.ExcelFieldUtils;
 import cn.chenzw.excel.magic.core.util.ListUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellRangeAddressList;
 import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.*;
 
 /**
@@ -207,11 +203,6 @@ public abstract class AbstractExcelWriterExecutor implements ExcelExecutor, Exce
 
             Map<Integer, ExcelCellStyleDefinition> columnCellStyles = sheetDefinition.getColumnCellStyles(sxssfWorkbook);
 
-         /*   CellStyle stripRowStyle = this.sxssfWorkbook.createCellStyle();
-            ((XSSFCellStyle) stripRowStyle).setFillForegroundColor(new XSSFColor(sheetDefinition.getRowStripeColor()));
-            stripRowStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-            ((XSSFCellStyle) stripRowStyle).setFillBackgroundColor(new XSSFColor(sheetDefinition.getRowStripeColor()));*/
-
             List<?> rowDatas = sheetDefinition.getRowDatas();
             for (int rowIndex = 0; rowIndex < rowDatas.size(); rowIndex++) {
                 Row row = sheet.createRow(rowIndex + sheetDefinition.getFirstDataRow());
@@ -227,16 +218,10 @@ public abstract class AbstractExcelWriterExecutor implements ExcelExecutor, Exce
                     ExcelExportColumn exportColumn = field.getAnnotation(ExcelExportColumn.class);
                     cell.setCellType(exportColumn.cellType());
 
-
-                    // 设置数据样式
-                   /* CellStyleBuilder cellStyleBuilder = this.cellStyleCache
-                            .getCellStyleInstance(exportColumn.dataCellStyleBuilder());
-                    CellStyle cellStyle = cellStyleBuilder.build(this.sxssfWorkbook, new ExcelCellStyleDefinition(this.sxssfWorkbook),cell);*/
-
                     ExcelCellStyleDefinition cellStyleDefinition = null;
                     if (sheetDefinition.isRowStriped()) {
                         if (rowIndex % 2 == 0) {
-                            cellStyleDefinition = columnCellStyles.get(columnFieldEntry.getKey() * 2 -1);
+                            cellStyleDefinition = columnCellStyles.get(columnFieldEntry.getKey() * 2 - 1);
                         } else {
                             cellStyleDefinition = columnCellStyles.get(columnFieldEntry.getKey() * 2);
                         }
@@ -245,6 +230,11 @@ public abstract class AbstractExcelWriterExecutor implements ExcelExecutor, Exce
                     }
                     CellStyle cellStyle = cellStyleDefinition.getCellStyle();
 
+                    // 设置数据样式
+                    CellStyleBuilder cellStyleBuilder = this.cellStyleCache
+                            .getCellStyleInstance(exportColumn.dataCellStyleBuilder());
+                    cellStyle = cellStyleBuilder.build(this.sxssfWorkbook, cellStyleDefinition, cell);
+
                     // 设置数据格式
                     ExcelDataFormat excelDataFormat = exportColumn.dataFormat();
                     if (!StringUtils.isBlank(excelDataFormat.value())) {
@@ -252,10 +242,6 @@ public abstract class AbstractExcelWriterExecutor implements ExcelExecutor, Exce
                         cellStyle.setDataFormat(dataFormat.getFormat(excelDataFormat.value()));
                     }
 
-                    // 设置条纹
-                    /*if (sheetDefinition.isRowStriped() && (rowIndex % 2 == 0)) {
-                        cellStyle.cloneStyleFrom(stripRowStyle);
-                    }*/
                     cell.setCellStyle(cellStyle);
 
                     try {
