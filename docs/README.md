@@ -8,6 +8,10 @@
 [![Build Status](https://travis-ci.org/otary/magical-excel.svg?branch=master)](https://travis-ci.org/otary/magical-excel)
 [![codecov](https://codecov.io/gh/otary/magical-excel/branch/master/graph/badge.svg)](https://codecov.io/gh/otary/magical-excel)
 
+##文档
+ 
+[中文文档](https://otary.github.io/magical-excel/#/)
+
 ## 功能
 
 - [x] 基于注解导入/导出
