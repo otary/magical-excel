@@ -2,6 +2,7 @@ package cn.chenzw.excel.magical.core;
 
 import cn.chenzw.excel.magic.core.support.ExcelReader;
 import cn.chenzw.excel.magical.core.domain.ExcelDutyAdjustRecord;
+import cn.chenzw.excel.magical.core.domain.ExcelDutyStaffArrangementTemplate;
 import cn.chenzw.excel.magical.core.domain.ExcelDutyVacation;
 import cn.chenzw.excel.magical.core.domain.HolidayCfg;
 import org.junit.Assert;
@@ -45,6 +46,16 @@ public class ExcelReaderTest {
         List<ExcelDutyAdjustRecord> excelDutyAdjustRecords = excelReader.read(ExcelDutyAdjustRecord.class);
 
         Assert.assertEquals(5, excelDutyAdjustRecords.size());
+    }
+
+    @Test
+    public void test4() {
+        InputStream is = Thread.currentThread().getContextClassLoader()
+                .getResourceAsStream(EXCEL_TEMPLATE_DIR + "duty_template.xlsx");
+        ExcelReader excelReader = new ExcelReader(is);
+        List<ExcelDutyStaffArrangementTemplate> dutyStaffArrangementTemplate = excelReader.read(ExcelDutyStaffArrangementTemplate.class);
+
+        Assert.assertEquals(1, dutyStaffArrangementTemplate.size());
     }
 
 }
