@@ -18,6 +18,7 @@
 - [x] 可自定义复合头部
 - [x] 可自定义单元格样式
 - [x] 单双行斑马线
+- [x] 生成导入模版
 - [x] sheet分页(指定每页行数，自动分页)
 - [x] 多sheet页导入/导出（每个sheet页都映射到entity中）
 - [x] 支持值转换（excel单元格中的值转换后写入entity对象中）
@@ -389,6 +390,52 @@ try (FileOutputStream fos = new FileOutputStream(new File("multi_sheet_data.xlsx
 
 ````
 
+### 生成模版
+
+``` java
+@ExcelImport(sheetIndex = 1, firstDataRow = 2)
+@ExcelExport(sheetName = "节假日")
+public class HolidayCfg {
+
+    @ExcelImportColumn(colIndex = 1, dateFormat = "yyyy-MM-dd", allowBlank = false)
+    @ExcelExportColumn(title = "节假日日期", colIndex = 1, dataFormat = @ExcelDataFormat("yyyy-MM-dd HH:mm:ss"))
+    private Date holidayDate;
+
+    @ExcelImportColumn(colIndex = 2, allowBlank = false)
+    @ExcelExportColumn(title = "节假日名称", colIndex = 2)
+    private String holidayName;
+
+    @ExcelKVConvert(kvmap = {"是=0", "否=1"})
+    @ExcelStringList({"是", "否"})  // 只允许"是"、"否"两个值
+    @ExcelImportColumn(colIndex = 3, allowBlank = false)
+    @ExcelExportColumn(title = "是否上班", colIndex = 3)
+    private String isWork;
+
+    @ExcelImportColumn(colIndex = 4)
+    @ExcelExportColumn(title = "备注", colIndex = 4)
+    private String remark;
+
+    ...
+}
+
+```
+
+``` java
+try (FileOutputStream fos = new FileOutputStream(new File("template_by_model.xlsx"))) {
+    // 单个sheet页模版
+    ExcelWriter.newTemplateInstance(HolidayCfg.class).write(fos);
+} catch (IOException e) {
+    e.printStackTrace();
+}
+
+
+try (FileOutputStream fos = new FileOutputStream(new File(DEFAULT_TARGET_EXCEL_DIR + "template_by_models.xlsx"))) {
+   // 多个sheet页模版
+   ExcelWriter.newTemplateInstance(HolidayCfg.class, User.class).write(fos);
+} catch (IOException e) {
+   e.printStackTrace();
+}
+```
 
 ### Sheet分页
 
