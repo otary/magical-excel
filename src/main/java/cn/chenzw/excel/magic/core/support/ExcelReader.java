@@ -2,7 +2,10 @@ package cn.chenzw.excel.magic.core.support;
 
 
 import cn.chenzw.excel.magic.core.context.AnnotationExcelReaderContext;
-import org.apache.poi.util.IOUtils;
+import cn.chenzw.excel.magic.core.support.callback.ExcelCellReadExceptionCallback;
+import cn.chenzw.excel.magic.core.support.callback.ExcelRowReadExceptionCallback;
+import org.apache.commons.io.IOUtils;
+
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -17,6 +20,11 @@ public class ExcelReader {
 
     private ByteArrayOutputStream baos;
 
+    private ExcelRowReadExceptionCallback rowReadExceptionCallback;
+
+    private ExcelCellReadExceptionCallback cellReadExceptionCallback;
+
+
     public ExcelReader(InputStream is) {
         this.baos = new ByteArrayOutputStream();
         try {
@@ -26,12 +34,22 @@ public class ExcelReader {
         }
     }
 
-    public static ExcelReader newInstance(InputStream is){
+    public static ExcelReader newInstance(InputStream is) {
         return new ExcelReader(is);
     }
 
+    public ExcelReader configRowReadExceptionCallback(ExcelRowReadExceptionCallback rowReadExceptionCallback) {
+        this.rowReadExceptionCallback = rowReadExceptionCallback;
+        return this;
+    }
+
+    public ExcelReader configCellReadExceptionCallback(ExcelCellReadExceptionCallback cellReadExceptionCallback) {
+        this.cellReadExceptionCallback = cellReadExceptionCallback;
+        return this;
+    }
+
     public <T> List<T> read(Class<T> clazz) {
-        return new AnnotationExcelReaderContext(new ByteArrayInputStream(baos.toByteArray()), clazz).getExecutor()
+        return new AnnotationExcelReaderContext(new ByteArrayInputStream(baos.toByteArray()), clazz, rowReadExceptionCallback, cellReadExceptionCallback).getExecutor()
                 .executeRead();
     }
 

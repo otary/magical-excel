@@ -4,7 +4,10 @@ import cn.chenzw.excel.magic.core.constants.ExcelConstants;
 import cn.chenzw.excel.magic.core.meta.model.ExcelCellDefinition;
 import cn.chenzw.excel.magic.core.meta.model.ExcelRowDefinition;
 import cn.chenzw.excel.magic.core.processor.ExcelPerRowProcessor;
+import cn.chenzw.excel.magic.core.support.callback.ExcelRowReadExceptionCallback;
+import cn.chenzw.excel.magic.core.support.callback.impl.DefaultExcelRowReadExceptionCallback;
 import cn.chenzw.excel.magic.core.util.ExcelXmlCodecUtils;
+import cn.chenzw.toolkit.commons.exception.ConvertException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.model.StylesTable;
@@ -28,11 +31,13 @@ public class XlsxAnalysisHandler extends DefaultHandler {
     private ExcelRowDefinition curExcelRow;
     private ExcelCellDefinition curExcelCell;
     private List<ExcelCellDefinition.ExcelCellType> excelCellTypes = new ArrayList<>();
+    private ExcelRowReadExceptionCallback rowReadExceptionCallback;
 
-    public XlsxAnalysisHandler(StylesTable stylesTable, SharedStringsTable sst, ExcelPerRowProcessor perRowProcessor) {
+    public XlsxAnalysisHandler(StylesTable stylesTable, SharedStringsTable sst, ExcelPerRowProcessor perRowProcessor, ExcelRowReadExceptionCallback rowReadExceptionCallback) {
         this.sst = sst;
         this.stylesTable = stylesTable;
         this.perRowProcessor = perRowProcessor;
+        this.rowReadExceptionCallback = rowReadExceptionCallback;
 
         registerExcelCellTypes();
     }
@@ -95,7 +100,12 @@ public class XlsxAnalysisHandler extends DefaultHandler {
 
         // 行
         if (ExcelConstants.ROW_TAG.equals(name)) {
-            this.perRowProcessor.processPerRow(this.curExcelRow);
+            try {
+                this.perRowProcessor.processPerRow(this.curExcelRow);
+            } catch (Exception ex) {
+                rowReadExceptionCallback.call(this.curExcelRow, ex);
+            }
+
         }
 
         // 单元格

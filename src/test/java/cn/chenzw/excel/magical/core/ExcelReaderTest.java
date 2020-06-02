@@ -1,6 +1,11 @@
 package cn.chenzw.excel.magical.core;
 
+import cn.chenzw.excel.magic.core.exception.ExcelReaderException;
+import cn.chenzw.excel.magic.core.meta.model.ExcelCellDefinition;
+import cn.chenzw.excel.magic.core.meta.model.ExcelRowDefinition;
 import cn.chenzw.excel.magic.core.support.ExcelReader;
+import cn.chenzw.excel.magic.core.support.callback.ExcelCellReadExceptionCallback;
+import cn.chenzw.excel.magic.core.support.callback.ExcelRowReadExceptionCallback;
 import cn.chenzw.excel.magical.core.domain.ExcelDutyAdjustRecord;
 import cn.chenzw.excel.magical.core.domain.ExcelDutyStaffArrangementTemplate;
 import cn.chenzw.excel.magical.core.domain.ExcelDutyVacation;
@@ -11,12 +16,13 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(JUnit4.class)
 public class ExcelReaderTest {
 
-    private static final String EXCEL_TEMPLATE_DIR = "excel-template/";
+    private static final String EXCEL_TEMPLATE_DIR = "";// "excel-template/";
 
     @Test
     public void test() {
@@ -52,10 +58,39 @@ public class ExcelReaderTest {
     public void test4() {
         InputStream is = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream(EXCEL_TEMPLATE_DIR + "duty_template.xlsx");
-        ExcelReader excelReader = new ExcelReader(is);
-        List<ExcelDutyStaffArrangementTemplate> dutyStaffArrangementTemplate = excelReader.read(ExcelDutyStaffArrangementTemplate.class);
 
+        ExcelReader excelReader = new ExcelReader(is);
+
+        List<ExcelDutyStaffArrangementTemplate> dutyStaffArrangementTemplate = excelReader.read(ExcelDutyStaffArrangementTemplate.class);
         Assert.assertEquals(1, dutyStaffArrangementTemplate.size());
+    }
+
+    @Test
+    public void testWithCallback() {
+        List<ExcelRowDefinition> list = new ArrayList<>();
+        InputStream is = Thread.currentThread().getContextClassLoader()
+                .getResourceAsStream(EXCEL_TEMPLATE_DIR + "duty_template.xlsx");
+        List<ExcelDutyStaffArrangementTemplate> dutyStaffArrangementTemplate = ExcelReader.newInstance(is)
+                /*.configRowReadExceptionCallback(new ExcelRowReadExceptionCallback() {
+                    @Override
+                    public void call(ExcelRowDefinition rowDefinition, Exception ex) {
+                        System.out.println(rowDefinition);
+
+
+                        list.add(rowDefinition);
+
+                        throw (ExcelReaderException) ex;
+
+                    }
+                })*/
+                .configCellReadExceptionCallback((rowDefinition, cellDefinition, ex) -> {
+                    System.out.println(cellDefinition.getColTitle());
+                    System.out.println(ex);
+                })
+                .read(ExcelDutyStaffArrangementTemplate.class);
+
+        System.out.println(list.size());
+        System.out.println(dutyStaffArrangementTemplate);
     }
 
 }

@@ -2,19 +2,32 @@ package cn.chenzw.excel.magic.core.lifecycle;
 
 import cn.chenzw.excel.magic.core.meta.model.ExcelRowDefinition;
 
+/**
+ * @author chenzw
+ */
 public interface ExcelReaderLifecycle {
 
 
     /**
      * 是否空行
+     *
      * @param row
      * @return
      */
     boolean isEmptyRow(ExcelRowDefinition row);
 
+    /**
+     * 前置设置
+     *
+     * @return
+     * @since 1.0.5
+     */
+    void preSet(ExcelRowDefinition row);
+
 
     /**
      * 数据校验
+     *
      * @param row
      * @return
      */
@@ -22,6 +35,7 @@ public interface ExcelReaderLifecycle {
 
     /**
      * 格式转换
+     *
      * @param row
      * @return
      */

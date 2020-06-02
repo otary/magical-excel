@@ -18,6 +18,7 @@ public class ExcelReaderExecutor<T> extends AbstractExcelReaderExecutor implemen
 
     private static final Logger logger = LoggerFactory.getLogger(ExcelReaderExecutor.class);
 
+
     public ExcelReaderExecutor(ExcelReaderContext readerContext) {
         super(readerContext);
     }
@@ -43,8 +44,11 @@ public class ExcelReaderExecutor<T> extends AbstractExcelReaderExecutor implemen
             return;
         }
 
-        if (!this.isEmptyRow(row) && this.validate(row)) {
-            this.format(row);
+        if (!this.isEmptyRow(row)) {
+            this.preSet(row);
+            if (this.validate(row)) {
+                this.format(row);
+            }
         }
     }
 
@@ -73,6 +77,12 @@ public class ExcelReaderExecutor<T> extends AbstractExcelReaderExecutor implemen
             logger.debug("finish validate emtpy row! [cost:{}ms] ", (System.currentTimeMillis() - startTimeMillis));
         }
     }
+
+    @Override
+    public void preSet(ExcelRowDefinition row) {
+        super.preSet(row);
+    }
+
 
     @Override
     public boolean validate(ExcelRowDefinition row) {

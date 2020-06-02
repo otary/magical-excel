@@ -11,19 +11,29 @@ public @interface ExcelImportColumn {
 
     /**
      * 列索引(从1开始)
+     *
      * @return
      */
     int colIndex();
 
     /**
      * 是否允许空值
+     *
      * @return
      */
     boolean allowBlank() default true;
 
     /**
      * 日期格式
+     *
      * @return
      */
     String dateFormat() default "";
+
+    /**
+     * 列标题（用于异常提示）
+     *
+     * @return
+     */
+    String title() default "";
 }

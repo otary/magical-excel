@@ -11,6 +11,7 @@ public interface ExcelSheetDefinition extends Comparable {
 
     /**
      * 获取Sheet注解
+     *
      * @param clazz
      * @return
      */
@@ -18,18 +19,28 @@ public interface ExcelSheetDefinition extends Comparable {
 
     /**
      * 获取绑定的对象
+     *
      * @return
      */
     Class<?> getBindingModel();
 
     /**
      * 获取列字段
+     *
      * @return
      */
     Map<Integer, Field> getColumnFields();
 
     /**
+     * 获取列标题
+     *
+     * @return
+     */
+    Map<Integer, String> getColumnTitles();
+
+    /**
      * 获取数据行号
+     *
      * @return
      */
     int getFirstDataRow();

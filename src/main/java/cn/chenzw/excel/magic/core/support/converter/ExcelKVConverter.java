@@ -32,7 +32,6 @@ public class ExcelKVConverter implements AbstractExcelColumnConverter<ExcelKVCon
     @Override
     public Object convert(String value) {
         if (this.kvMap.containsKey(value)) {
-
             return MapUtils.getObject(this.kvMap, value);
         } else {
             if (!this.allowMissHit) {

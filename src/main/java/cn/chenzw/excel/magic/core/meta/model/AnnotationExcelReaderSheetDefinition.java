@@ -14,6 +14,7 @@ public class AnnotationExcelReaderSheetDefinition implements ExcelReaderSheetDef
 
     private Class<?> cls;
     private Map<Integer, Field> columnFields;
+    private Map<Integer, String> columnTitles;
 
     private int sheetIndex;
     private int[] sheetIndexs;
@@ -23,6 +24,7 @@ public class AnnotationExcelReaderSheetDefinition implements ExcelReaderSheetDef
     public AnnotationExcelReaderSheetDefinition(Class<?> clazz) {
         this.cls = clazz;
         this.columnFields = new HashMap<>();
+        this.columnTitles = new HashMap<>();
         init();
     }
 
@@ -47,6 +49,7 @@ public class AnnotationExcelReaderSheetDefinition implements ExcelReaderSheetDef
             if (importColumn != null) {
                 field.setAccessible(true);
                 this.columnFields.put(importColumn.colIndex(), field);
+                this.columnTitles.put(importColumn.colIndex(), importColumn.title());
             }
         }
     }
@@ -63,12 +66,17 @@ public class AnnotationExcelReaderSheetDefinition implements ExcelReaderSheetDef
 
     @Override
     public int getFirstDataRow() {
-        return firstDataRow;
+        return this.firstDataRow;
     }
 
     @Override
     public Map<Integer, Field> getColumnFields() {
-        return columnFields;
+        return this.columnFields;
+    }
+
+    @Override
+    public Map<Integer, String> getColumnTitles() {
+        return this.columnTitles;
     }
 
     @Override

@@ -72,6 +72,11 @@ public class AnnotationExcelWriterSheetDefinition implements ExcelWriterSheetDef
     }
 
     @Override
+    public Map<Integer, String> getColumnTitles() {
+        return null;
+    }
+
+    @Override
     public int getFirstDataRow() {
         return this.firstDataRow;
     }

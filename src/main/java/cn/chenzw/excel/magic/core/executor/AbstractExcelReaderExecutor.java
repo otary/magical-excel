@@ -72,7 +72,7 @@ public abstract class AbstractExcelReaderExecutor<T> implements ExcelReaderLifec
             XSSFReader xssfReader = new XSSFReader(pkg);
             XMLReader parser = XMLReaderFactory.createXMLReader("com.sun.org.apache.xerces.internal.parsers.SAXParser");
             ContentHandler xlsxAnalysisHandler = new XlsxAnalysisHandler(xssfReader.getStylesTable(),
-                    xssfReader.getSharedStringsTable(), getExcelRowProcess());
+                    xssfReader.getSharedStringsTable(), getExcelRowProcess(), readerContext.getExcelRowReadExceptionCallback());
             parser.setContentHandler(xlsxAnalysisHandler);
 
             Iterator<InputStream> sheets = xssfReader.getSheetsData();
@@ -117,6 +117,20 @@ public abstract class AbstractExcelReaderExecutor<T> implements ExcelReaderLifec
     }
 
     @Override
+    public void preSet(ExcelRowDefinition row) {
+        Map<Integer, String> columnTitles = this.curSheet.getColumnTitles();
+        List<ExcelCellDefinition> excelCells = row.getExcelCells();
+
+        int index = 0;
+        for (ExcelCellDefinition excelCell : excelCells) {
+            String title = columnTitles.get(index);
+            excelCell.setColTitle(title);
+            excelCell.setSheetIndex(this.curSheetIndex);
+            index++;
+        }
+    }
+
+    @Override
     public boolean validate(ExcelRowDefinition row) {
         List<ExcelCellDefinition> excelCells = row.getExcelCells();
         Map<Integer, Field> columnFields = this.curSheet.getColumnFields();
@@ -124,26 +138,35 @@ public abstract class AbstractExcelReaderExecutor<T> implements ExcelReaderLifec
             this.curColIndex = columnFieldEntity.getKey();
             Field field = columnFieldEntity.getValue();
             ExcelCellDefinition cell = getCell(excelCells, columnFieldEntity.getKey());
-
-            // 空值
-            if (StringUtils.isBlank(cell.getCellValue())) {
-                // 非空校验
-                ExcelImportColumn importColumn = field.getAnnotation(ExcelImportColumn.class);
-                if (!importColumn.allowBlank()) {
-                    throw new ExcelException("该字段值为空!");
-                }
+            try {
+                return columnVaildate(cell, field);
+            } catch (Exception ex) {
+                readerContext.getExcelCellReadExceptionCallback().call(row, cell, ex);
+                return false;
             }
+        }
+        return true;
+    }
 
-            List<AbstractExcelColumnValidator> columnValidators = columnValidatorCache.getIfPresent(field.getName());
-            if (columnValidators == null) {
-                columnValidators = findColumnValidators(field);
-                this.columnValidatorCache.put(field.getName(), columnValidators);
+    private boolean columnVaildate(ExcelCellDefinition cell, Field field) {
+        // 空值
+        if (StringUtils.isBlank(cell.getCellValue())) {
+            // 非空校验
+            ExcelImportColumn importColumn = field.getAnnotation(ExcelImportColumn.class);
+            if (!importColumn.allowBlank()) {
+                throw new ExcelException("该字段值为空!");
             }
+        }
 
-            for (AbstractExcelColumnValidator columnValidator : columnValidators) {
-                if (!columnValidator.validate(cell.getCellValue())) {
-                    throw new ExcelException("该字段数据校验不通过!");
-                }
+        List<AbstractExcelColumnValidator> columnValidators = columnValidatorCache.getIfPresent(field.getName());
+        if (columnValidators == null) {
+            columnValidators = findColumnValidators(field);
+            this.columnValidatorCache.put(field.getName(), columnValidators);
+        }
+
+        for (AbstractExcelColumnValidator columnValidator : columnValidators) {
+            if (!columnValidator.validate(cell.getCellValue())) {
+                throw new ExcelException("该字段数据校验不通过!");
             }
         }
         return true;
@@ -164,8 +187,8 @@ public abstract class AbstractExcelReaderExecutor<T> implements ExcelReaderLifec
 
         for (int i = 0; i < excelCells.size(); i++) {
             this.curColIndex = i + 1;
-
             ExcelCellDefinition cell = excelCells.get(i);
+
             if (!StringUtils.isBlank(cell.getCellValue())) {
                 Field field = columnFields.get(cell.getColIndex());
 
@@ -177,17 +200,22 @@ public abstract class AbstractExcelReaderExecutor<T> implements ExcelReaderLifec
                     this.columnConverterCache.put(field.getName(), columnConverters);
                 }
 
-                for (AbstractExcelColumnConverter columnConverter : columnConverters) {
-                    cellValue = columnConverter.convert((String) cellValue);
+                try {
+                    for (AbstractExcelColumnConverter columnConverter : columnConverters) {
+                        cellValue = columnConverter.convert((String) cellValue);
+                    }
+                } catch (Exception ex) {
+                    readerContext.getExcelCellReadExceptionCallback().call(row, cell, ex);
                 }
 
                 try {
                     ExcelFieldUtils.setFieldValue(field, instance, cellValue,
                             field.getAnnotation(ExcelImportColumn.class).dateFormat());
-                } catch (Exception e) {
-                    throw new ExcelException("字段赋值失败!");
+                } catch (Exception ex) {
+                    readerContext.getExcelCellReadExceptionCallback().call(row, cell, new ExcelException("字段赋值失败!", ex));
                 }
             }
+
         }
         datas.add((T) instance);
     }

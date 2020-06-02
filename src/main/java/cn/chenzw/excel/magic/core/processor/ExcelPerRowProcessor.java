@@ -10,5 +10,5 @@ public interface ExcelPerRowProcessor {
 
     void processTotalRow(int totalRows);
 
-    void processPerRow(ExcelRowDefinition row);
+    void processPerRow(ExcelRowDefinition row) throws Exception;
 }
