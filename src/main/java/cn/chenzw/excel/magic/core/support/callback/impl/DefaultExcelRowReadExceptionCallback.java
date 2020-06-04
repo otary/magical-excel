@@ -7,9 +7,7 @@ import cn.chenzw.excel.magic.core.support.callback.ExcelRowReadExceptionCallback
 public class DefaultExcelRowReadExceptionCallback implements ExcelRowReadExceptionCallback {
 
     @Override
-    public void call(ExcelRowDefinition rowDefinition, Exception ex) {
-        System.out.println("-----------------------");
-        System.out.println(ex instanceof ExcelReaderException);
+    public void call(final ExcelRowDefinition rowDefinition, final Exception ex) {
         if(ex instanceof ExcelReaderException){
             throw (ExcelReaderException) ex;
         }

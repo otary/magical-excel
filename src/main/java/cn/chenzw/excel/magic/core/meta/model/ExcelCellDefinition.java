@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -22,9 +23,10 @@ import java.util.List;
  *
  * @author chenzw
  */
-public class ExcelCellDefinition {
+public class ExcelCellDefinition implements Serializable {
 
     private static final Logger logger = LoggerFactory.getLogger(ExcelCellDefinition.class);
+    private static final long serialVersionUID = -1737830792925662139L;
 
     private Integer sheetIndex;
     private Integer rowIndex;
@@ -37,7 +39,7 @@ public class ExcelCellDefinition {
         return sheetIndex;
     }
 
-    public void setSheetIndex(Integer sheetIndex) {
+    public void setSheetIndex(final Integer sheetIndex) {
         this.sheetIndex = sheetIndex;
     }
 
@@ -45,7 +47,7 @@ public class ExcelCellDefinition {
         return rowIndex;
     }
 
-    public void setRowIndex(Integer rowIndex) {
+    public void setRowIndex(final Integer rowIndex) {
         this.rowIndex = rowIndex;
     }
 
@@ -53,7 +55,7 @@ public class ExcelCellDefinition {
         return colIndex;
     }
 
-    public void setColIndex(Integer colIndex) {
+    public void setColIndex(final Integer colIndex) {
         this.colIndex = colIndex;
     }
 
@@ -61,7 +63,7 @@ public class ExcelCellDefinition {
         return colTitle;
     }
 
-    public void setColTitle(String colTitle) {
+    public void setColTitle(final String colTitle) {
         this.colTitle = colTitle;
     }
 
@@ -69,7 +71,7 @@ public class ExcelCellDefinition {
         return cellValue;
     }
 
-    public void setCellValue(String cellValue) {
+    public void setCellValue(final String cellValue) {
         this.cellValue = cellValue;
     }
 
@@ -77,7 +79,7 @@ public class ExcelCellDefinition {
         return cellType;
     }
 
-    public void setCellType(ExcelCellType cellType) {
+    public void setCellType(final ExcelCellType cellType) {
         this.cellType = cellType;
     }
 
@@ -93,7 +95,7 @@ public class ExcelCellDefinition {
      *
      * @author chenzw
      */
-    public interface ExcelCellType {
+    public interface ExcelCellType extends Serializable {
 
         boolean matches(String name, Attributes attributes);
 
@@ -105,14 +107,16 @@ public class ExcelCellDefinition {
      */
     public static class ExcelStringCellType implements ExcelCellType {
 
+        private static final long serialVersionUID = 1368517956940674679L;
+
         private SharedStringsTable sst;
 
-        public ExcelStringCellType(SharedStringsTable sst) {
+        public ExcelStringCellType(final SharedStringsTable sst) {
             this.sst = sst;
         }
 
         @Override
-        public boolean matches(String name, Attributes attributes) {
+        public boolean matches(final String name, final Attributes attributes) {
 
             if (ExcelConstants.CELL_TAG.equals(name)) {
                 // 字符串类型 t="s"
@@ -127,8 +131,8 @@ public class ExcelCellDefinition {
         }
 
         @Override
-        public String getValue(String value) {
-            int idx = Integer.parseInt(value);
+        public String getValue(final String value) {
+            final int idx = Integer.parseInt(value);
             return new XSSFRichTextString(this.sst.getEntryAt(idx)).toString();
         }
     }
@@ -139,21 +143,22 @@ public class ExcelCellDefinition {
      */
     public static class ExcelDateCellType implements ExcelCellType {
 
+        private static final long serialVersionUID = -9216501976104636864L;
         private StylesTable stylesTable;
 
-        public ExcelDateCellType(StylesTable stylesTable) {
+        public ExcelDateCellType(final StylesTable stylesTable) {
             this.stylesTable = stylesTable;
         }
 
         @Override
-        public boolean matches(String name, Attributes attributes) {
+        public boolean matches(final String name, final Attributes attributes) {
 
             if (ExcelConstants.CELL_TAG.equals(name)) {
                 // s不为空
                 if (!StringUtils.isBlank(attributes.getValue(ExcelConstants.CELL_STYLE_ATTR))) {
-                    int styleIndex = Integer.parseInt(attributes.getValue(ExcelConstants.CELL_STYLE_ATTR));
-                    XSSFCellStyle cellStyle = this.stylesTable.getStyleAt(styleIndex);
-                    String dataFormatString = cellStyle.getDataFormatString();
+                    final int styleIndex = Integer.parseInt(attributes.getValue(ExcelConstants.CELL_STYLE_ATTR));
+                    final XSSFCellStyle cellStyle = this.stylesTable.getStyleAt(styleIndex);
+                    final String dataFormatString = cellStyle.getDataFormatString();
                     if (StringUtils.containsAny(dataFormatString, "y", "m", "d", "h", "s", "Y", "M", "D")) {
                         if (logger.isDebugEnabled()) {
                             logger.debug("The [{} - {}] matches [{}]!", getCellAttributes(attributes), dataFormatString, this.getClass().getName());
@@ -166,8 +171,8 @@ public class ExcelCellDefinition {
         }
 
         @Override
-        public String getValue(String value) {
-            Date date = HSSFDateUtil.getJavaDate(Double.parseDouble(value));
+        public String getValue(final String value) {
+            final Date date = HSSFDateUtil.getJavaDate(Double.parseDouble(value));
             return DateFormatUtils.format(date, "yyyy-MM-dd HH:mm:ss");
         }
     }
@@ -177,19 +182,20 @@ public class ExcelCellDefinition {
      */
     public static class ExcelNumbericCellType implements ExcelCellType {
 
+        private static final long serialVersionUID = -3254659667807688559L;
         private StylesTable stylesTable;
 
-        public ExcelNumbericCellType(StylesTable stylesTable) {
+        public ExcelNumbericCellType(final StylesTable stylesTable) {
             this.stylesTable = stylesTable;
         }
 
         @Override
-        public boolean matches(String name, Attributes attributes) {
+        public boolean matches(final String name, final Attributes attributes) {
             if (ExcelConstants.CELL_TAG.equals(name)) {
                 // s不为空
                 if (!StringUtils.isBlank(attributes.getValue(ExcelConstants.CELL_STYLE_ATTR))) {
 
-                    String dataFormat = ExcelXmlCodecUtils
+                    final String dataFormat = ExcelXmlCodecUtils
                             .getDataFormat(Integer.parseInt(attributes.getValue(ExcelConstants.CELL_STYLE_ATTR)),
                                     this.stylesTable);
                     if (StringUtils.containsAny(dataFormat, "#", "General")) {
@@ -204,7 +210,7 @@ public class ExcelCellDefinition {
         }
 
         @Override
-        public String getValue(String value) {
+        public String getValue(final String value) {
             return value;
         }
     }
@@ -214,8 +220,10 @@ public class ExcelCellDefinition {
      */
     public static class ExcelInlinStrCellType implements ExcelCellType {
 
+        private static final long serialVersionUID = 9115672114160103097L;
+
         @Override
-        public boolean matches(String name, Attributes attributes) {
+        public boolean matches(final String name, final Attributes attributes) {
 
             if (ExcelConstants.CELL_TAG.equals(name)) {
                 // t="inlinStr"
@@ -230,8 +238,8 @@ public class ExcelCellDefinition {
         }
 
         @Override
-        public String getValue(String value) {
-            XSSFRichTextString rtsi = new XSSFRichTextString(value);
+        public String getValue(final String value) {
+            final XSSFRichTextString rtsi = new XSSFRichTextString(value);
             return rtsi.toString();
         }
     }
@@ -242,8 +250,10 @@ public class ExcelCellDefinition {
      */
     public static class ExcelBooleanCellType implements ExcelCellType {
 
+        private static final long serialVersionUID = -3049964850218918322L;
+
         @Override
-        public boolean matches(String name, Attributes attributes) {
+        public boolean matches(final String name, final Attributes attributes) {
             if (ExcelConstants.CELL_TAG.equals(name)) {
                 // t = "b"
                 if (ExcelConstants.CELL_BOOLEAN_TYPE.equals(attributes.getValue(ExcelConstants.CELL_TYPE_ATTR))) {
@@ -257,7 +267,7 @@ public class ExcelCellDefinition {
         }
 
         @Override
-        public String getValue(String value) {
+        public String getValue(final String value) {
             return value;
         }
     }
@@ -268,8 +278,10 @@ public class ExcelCellDefinition {
      */
     public static class ExcelErrorCellType implements ExcelCellType {
 
+        private static final long serialVersionUID = 9033391964718310293L;
+
         @Override
-        public boolean matches(String name, Attributes attributes) {
+        public boolean matches(final String name, final Attributes attributes) {
             if (ExcelConstants.CELL_TAG.equals(name)) {
                 // t = "e"
                 if (ExcelConstants.CELL_ERROR_TYPE.equals(attributes.getValue(ExcelConstants.CELL_TYPE_ATTR))) {
@@ -283,7 +295,7 @@ public class ExcelCellDefinition {
         }
 
         @Override
-        public String getValue(String value) {
+        public String getValue(final String value) {
             return value;
         }
     }
@@ -291,8 +303,10 @@ public class ExcelCellDefinition {
 
     public static class ExcelNullCellType implements ExcelCellType {
 
+        private static final long serialVersionUID = 1030011032019218508L;
+
         @Override
-        public boolean matches(String name, Attributes attributes) {
+        public boolean matches(final String name, final Attributes attributes) {
             if (logger.isDebugEnabled()) {
                 logger.debug("The [{}] matches [{}]", getCellAttributes(attributes), this.getClass().getName());
             }
@@ -300,15 +314,15 @@ public class ExcelCellDefinition {
         }
 
         @Override
-        public String getValue(String value) {
+        public String getValue(final String value) {
             return value;
         }
     }
 
 
-    private static String getCellAttributes(Attributes attributes) {
-        int length = attributes.getLength();
-        List<String> attrs = new ArrayList<>();
+    private static String getCellAttributes(final Attributes attributes) {
+        final int length = attributes.getLength();
+        final List<String> attrs = new ArrayList<>();
         for (int i = 0; i < length; i++) {
             attrs.add(attributes.getQName(i) + "=" + attributes.getValue(i));
         }

@@ -1,18 +1,21 @@
 package cn.chenzw.excel.magic.core.meta.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author chenzw
  */
-public class ExcelRowDefinition {
+public class ExcelRowDefinition implements Serializable {
+
+    private static final long serialVersionUID = 4029152892615551071L;
 
     private Integer sheetIndex;
     private Integer rowIndex;
     private List<ExcelCellDefinition> excelCells = new ArrayList<>();
 
-    public void addExceCell(ExcelCellDefinition excelCell) {
+    public void addExceCell(final ExcelCellDefinition excelCell) {
         this.excelCells.add(excelCell);
     }
 
@@ -20,7 +23,7 @@ public class ExcelRowDefinition {
         return sheetIndex;
     }
 
-    public void setSheetIndex(Integer sheetIndex) {
+    public void setSheetIndex(final Integer sheetIndex) {
         this.sheetIndex = sheetIndex;
     }
 
@@ -28,7 +31,7 @@ public class ExcelRowDefinition {
         return rowIndex;
     }
 
-    public void setRowIndex(Integer rowIndex) {
+    public void setRowIndex(final Integer rowIndex) {
         this.rowIndex = rowIndex;
     }
 
@@ -36,7 +39,7 @@ public class ExcelRowDefinition {
         return excelCells;
     }
 
-    public void setExcelCells(List<ExcelCellDefinition> excelCells) {
+    public void setExcelCells(final List<ExcelCellDefinition> excelCells) {
         this.excelCells = excelCells;
     }
 

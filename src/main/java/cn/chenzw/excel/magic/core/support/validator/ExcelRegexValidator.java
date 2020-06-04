@@ -1,5 +1,6 @@
 package cn.chenzw.excel.magic.core.support.validator;
 
+import cn.chenzw.excel.magic.core.exception.ExcelValidationException;
 import cn.chenzw.excel.magic.core.meta.annotation.validation.ExcelRegexValue;
 import org.apache.commons.lang3.StringUtils;
 
@@ -9,22 +10,30 @@ public class ExcelRegexValidator implements AbstractExcelColumnValidator<ExcelRe
 
     private Pattern pattern;
 
+    private String message;
+
+
     @Override
-    public void initialize(ExcelRegexValue excelRegexValue) {
-        String regex = excelRegexValue.regex();
+    public void initialize(final ExcelRegexValue excelRegexValue) {
+        final String regex = excelRegexValue.regex();
         if (StringUtils.isBlank(regex)) {
             throw new IllegalArgumentException("正则表达式为空!");
         }
         this.pattern = Pattern.compile(regex);
+        this.message = excelRegexValue.message();
     }
 
     @Override
-    public boolean validate(String value) {
+    public boolean validate(final String value) {
         if (StringUtils.isBlank(value)) {
             return true;
         }
         if (pattern.matcher(value).matches()) {
             return true;
+        }
+
+        if (!StringUtils.isEmpty(message)) {
+            throw new ExcelValidationException(message);
         }
         return false;
     }

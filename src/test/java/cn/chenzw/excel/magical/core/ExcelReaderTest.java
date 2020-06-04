@@ -1,11 +1,7 @@
 package cn.chenzw.excel.magical.core;
 
-import cn.chenzw.excel.magic.core.exception.ExcelReaderException;
-import cn.chenzw.excel.magic.core.meta.model.ExcelCellDefinition;
 import cn.chenzw.excel.magic.core.meta.model.ExcelRowDefinition;
 import cn.chenzw.excel.magic.core.support.ExcelReader;
-import cn.chenzw.excel.magic.core.support.callback.ExcelCellReadExceptionCallback;
-import cn.chenzw.excel.magic.core.support.callback.ExcelRowReadExceptionCallback;
 import cn.chenzw.excel.magical.core.domain.ExcelDutyAdjustRecord;
 import cn.chenzw.excel.magical.core.domain.ExcelDutyStaffArrangementTemplate;
 import cn.chenzw.excel.magical.core.domain.ExcelDutyVacation;
@@ -26,35 +22,35 @@ public class ExcelReaderTest {
 
     @Test
     public void test() {
-        InputStream is = Thread.currentThread().getContextClassLoader()
+        final InputStream is = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream(EXCEL_TEMPLATE_DIR + "multi_sheet_data.xlsx");
-        ExcelReader excelReader = new ExcelReader(is);
-        List<HolidayCfg> holidayCfgs = excelReader.read(HolidayCfg.class);
+        final ExcelReader excelReader = new ExcelReader(is);
+        final List<HolidayCfg> holidayCfgs = excelReader.read(HolidayCfg.class);
 
         Assert.assertEquals(1000, holidayCfgs.size());
     }
 
     @Test
     public void test2() {
-        InputStream is = Thread.currentThread().getContextClassLoader()
+        final InputStream is = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream(EXCEL_TEMPLATE_DIR + "duty_vacation.xlsx");
-        ExcelReader excelReader = new ExcelReader(is);
-        List<ExcelDutyVacation> excelDutyVacations = excelReader.read(ExcelDutyVacation.class);
+        final ExcelReader excelReader = new ExcelReader(is);
+        final List<ExcelDutyVacation> excelDutyVacations = excelReader.read(ExcelDutyVacation.class);
 
         Assert.assertEquals(9, excelDutyVacations.size());
     }
 
     @Test
     public void test3() {
-        InputStream is = Thread.currentThread().getContextClassLoader()
+        final InputStream is = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream(EXCEL_TEMPLATE_DIR + "duty_adjust.xlsx");
-        ExcelReader excelReader = new ExcelReader(is);
-        List<ExcelDutyAdjustRecord> excelDutyAdjustRecords = excelReader.read(ExcelDutyAdjustRecord.class);
+        final ExcelReader excelReader = new ExcelReader(is);
+        final List<ExcelDutyAdjustRecord> excelDutyAdjustRecords = excelReader.read(ExcelDutyAdjustRecord.class);
 
         Assert.assertEquals(5, excelDutyAdjustRecords.size());
     }
 
-    @Test
+    /*@Test
     public void test4() {
         InputStream is = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream(EXCEL_TEMPLATE_DIR + "duty_template.xlsx");
@@ -63,14 +59,14 @@ public class ExcelReaderTest {
 
         List<ExcelDutyStaffArrangementTemplate> dutyStaffArrangementTemplate = excelReader.read(ExcelDutyStaffArrangementTemplate.class);
         Assert.assertEquals(1, dutyStaffArrangementTemplate.size());
-    }
+    }*/
 
     @Test
     public void testWithCallback() {
-        List<ExcelRowDefinition> list = new ArrayList<>();
-        InputStream is = Thread.currentThread().getContextClassLoader()
+        final List<ExcelRowDefinition> list = new ArrayList<>();
+        final InputStream is = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream(EXCEL_TEMPLATE_DIR + "duty_template.xlsx");
-        List<ExcelDutyStaffArrangementTemplate> dutyStaffArrangementTemplate = ExcelReader.newInstance(is)
+        final List<ExcelDutyStaffArrangementTemplate> dutyStaffArrangementTemplate = ExcelReader.newInstance(is)
                 /*.configRowReadExceptionCallback(new ExcelRowReadExceptionCallback() {
                     @Override
                     public void call(ExcelRowDefinition rowDefinition, Exception ex) {

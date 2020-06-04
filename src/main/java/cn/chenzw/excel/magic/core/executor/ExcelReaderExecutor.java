@@ -65,7 +65,7 @@ public class ExcelReaderExecutor<T> extends AbstractExcelReaderExecutor implemen
 
         try {
             if (super.isEmptyRow(row)) {
-                logger.warn("found empty row at [sheet={},row={}]", row.getSheetIndex(), row.getRowIndex());
+                logger.warn("Found empty row at [sheet={},row={}]", row.getSheetIndex(), row.getRowIndex());
                 return true;
             } else {
                 return false;
