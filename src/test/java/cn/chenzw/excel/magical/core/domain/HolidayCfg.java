@@ -33,7 +33,7 @@ public class HolidayCfg {
         return holidayName;
     }
 
-    public void setHolidayName(String holidayName) {
+    public void setHolidayName(final String holidayName) {
         this.holidayName = holidayName;
     }
 
@@ -41,7 +41,7 @@ public class HolidayCfg {
         return isWork;
     }
 
-    public void setIsWork(String isWork) {
+    public void setIsWork(final String isWork) {
         this.isWork = isWork;
     }
 
@@ -49,7 +49,7 @@ public class HolidayCfg {
         return remark;
     }
 
-    public void setRemark(String remark) {
+    public void setRemark(final String remark) {
         this.remark = remark;
     }
 
@@ -57,7 +57,7 @@ public class HolidayCfg {
         return holidayDate;
     }
 
-    public void setHolidayDate(Date holidayDate) {
+    public void setHolidayDate(final Date holidayDate) {
         this.holidayDate = holidayDate;
     }
 

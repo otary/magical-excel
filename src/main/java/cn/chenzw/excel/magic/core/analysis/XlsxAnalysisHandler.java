@@ -5,9 +5,7 @@ import cn.chenzw.excel.magic.core.meta.model.ExcelCellDefinition;
 import cn.chenzw.excel.magic.core.meta.model.ExcelRowDefinition;
 import cn.chenzw.excel.magic.core.processor.ExcelPerRowProcessor;
 import cn.chenzw.excel.magic.core.support.callback.ExcelRowReadExceptionCallback;
-import cn.chenzw.excel.magic.core.support.callback.impl.DefaultExcelRowReadExceptionCallback;
 import cn.chenzw.excel.magic.core.util.ExcelXmlCodecUtils;
-import cn.chenzw.toolkit.commons.exception.ConvertException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.model.StylesTable;
@@ -33,7 +31,7 @@ public class XlsxAnalysisHandler extends DefaultHandler {
     private List<ExcelCellDefinition.ExcelCellType> excelCellTypes = new ArrayList<>();
     private ExcelRowReadExceptionCallback rowReadExceptionCallback;
 
-    public XlsxAnalysisHandler(StylesTable stylesTable, SharedStringsTable sst, ExcelPerRowProcessor perRowProcessor, ExcelRowReadExceptionCallback rowReadExceptionCallback) {
+    public XlsxAnalysisHandler(final StylesTable stylesTable, final SharedStringsTable sst, final ExcelPerRowProcessor perRowProcessor, final ExcelRowReadExceptionCallback rowReadExceptionCallback) {
         this.sst = sst;
         this.stylesTable = stylesTable;
         this.perRowProcessor = perRowProcessor;
@@ -57,11 +55,11 @@ public class XlsxAnalysisHandler extends DefaultHandler {
 
 
     @Override
-    public void startElement(String uri, String localName, String name, Attributes attributes) throws SAXException {
+    public void startElement(final String uri, final String localName, final String name, final Attributes attributes) throws SAXException {
 
         // 总行数
         if (ExcelConstants.DIMENSION_TAG.equals(name)) {
-            String refAttr = attributes.getValue(ExcelConstants.DIMENSION_REF_ATTR);
+            final String refAttr = attributes.getValue(ExcelConstants.DIMENSION_REF_ATTR);
             this.totalRow = ExcelXmlCodecUtils.getTotalRow(refAttr);
             return;
         }
@@ -75,12 +73,12 @@ public class XlsxAnalysisHandler extends DefaultHandler {
         // 单元格
         if (ExcelConstants.CELL_TAG.equals(name)) {
             this.curExcelCell = new ExcelCellDefinition();
-            String abcColIndex = attributes.getValue(ExcelConstants.CELL_ABC_INDEX_ATTR);
+            final String abcColIndex = attributes.getValue(ExcelConstants.CELL_ABC_INDEX_ATTR);
             this.curExcelCell.setColIndex(ExcelXmlCodecUtils.getColIndex(abcColIndex));
             this.curExcelCell.setRowIndex(this.curExcelRow.getRowIndex());
 
             // 设置单元格处理器
-            for (ExcelCellDefinition.ExcelCellType excelCellType : this.excelCellTypes) {
+            for (final ExcelCellDefinition.ExcelCellType excelCellType : this.excelCellTypes) {
                 if (excelCellType.matches(name, attributes)) {
                     this.curExcelCell.setCellType(excelCellType);
                     break;
@@ -92,7 +90,7 @@ public class XlsxAnalysisHandler extends DefaultHandler {
     }
 
     @Override
-    public void endElement(String uri, String localName, String name) throws SAXException {
+    public void endElement(final String uri, final String localName, final String name) throws SAXException {
 
         if (ExcelConstants.DIMENSION_TAG.equals(name)) {
             this.perRowProcessor.processTotalRow(this.totalRow);
@@ -102,7 +100,7 @@ public class XlsxAnalysisHandler extends DefaultHandler {
         if (ExcelConstants.ROW_TAG.equals(name)) {
             try {
                 this.perRowProcessor.processPerRow(this.curExcelRow);
-            } catch (Exception ex) {
+            } catch (final Exception ex) {
                 rowReadExceptionCallback.call(this.curExcelRow, ex);
             }
 
@@ -120,7 +118,7 @@ public class XlsxAnalysisHandler extends DefaultHandler {
     }
 
     @Override
-    public void characters(char[] ch, int start, int length) {
+    public void characters(final char[] ch, final int start, final int length) {
         this.tagValue += new String(ch, start, length);
     }
 

@@ -6,7 +6,7 @@
 
     <groupId>cn.chenzw.excel</groupId>
     <artifactId>magical-excel</artifactId>
-    <version>1.0.5-a</version>
+    <version>1.0.5-b</version>
     <name>magical-excel</name>
     <description>基于注解的Excel导入导出组件</description>
     <url>https://github.com/otary/magical-excel</url>

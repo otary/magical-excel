@@ -20,7 +20,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellRangeAddressList;
-import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -46,7 +45,7 @@ public abstract class AbstractExcelWriterExecutor implements ExcelExecutor, Exce
     private SXSSFWorkbook sxssfWorkbook;
     private Map<Integer, ExcelSheetDefinition> sheetDefinitions;
 
-    public AbstractExcelWriterExecutor(ExcelWriterContext writerContext) {
+    public AbstractExcelWriterExecutor(final ExcelWriterContext writerContext) {
         this.sxssfWorkbook = new SXSSFWorkbook(new XSSFWorkbook(), 1000);
         this.sxssfWorkbook.setCompressTempFiles(true);
         this.writerContext = writerContext;
@@ -58,11 +57,11 @@ public abstract class AbstractExcelWriterExecutor implements ExcelExecutor, Exce
 
     @Override
     public void sheetPaging() {
-        List<List<?>> sheetSegments = new ArrayList<>();
-        for (Map.Entry<Integer, ExcelSheetDefinition> sheetDefinitionEntry : sheetDefinitions.entrySet()) {
-            ExcelWriterSheetDefinition sheetDefinition = (ExcelWriterSheetDefinition) sheetDefinitionEntry.getValue();
+        final List<List<?>> sheetSegments = new ArrayList<>();
+        for (final Map.Entry<Integer, ExcelSheetDefinition> sheetDefinitionEntry : sheetDefinitions.entrySet()) {
+            final ExcelWriterSheetDefinition sheetDefinition = (ExcelWriterSheetDefinition) sheetDefinitionEntry.getValue();
             this.curSheetIndex = sheetDefinitionEntry.getKey();
-            List<? extends List<?>> segments = ListUtils
+            final List<? extends List<?>> segments = ListUtils
                     .split(sheetDefinition.getRowDatas(), sheetDefinition.getMaxRowsPerSheet());
             if (segments.size() > 1) {
                 sheetSegments.addAll(segments);
@@ -75,20 +74,20 @@ public abstract class AbstractExcelWriterExecutor implements ExcelExecutor, Exce
 
     @Override
     public void handleComplexHeader() {
-        for (Map.Entry<Integer, ExcelSheetDefinition> sheetDefinitionEntry : sheetDefinitions.entrySet()) {
+        for (final Map.Entry<Integer, ExcelSheetDefinition> sheetDefinitionEntry : sheetDefinitions.entrySet()) {
             this.curSheetIndex = sheetDefinitionEntry.getKey();
-            ExcelWriterSheetDefinition sheetDefinition = (ExcelWriterSheetDefinition) sheetDefinitionEntry.getValue();
-            Sheet sheet = createSheet(sheetDefinitionEntry.getKey(), sheetDefinition.getSheetName());
-            ExcelComplexHeader ExcelComplexHeader = sheetDefinition.getAnnotation(ExcelComplexHeader.class);
+            final ExcelWriterSheetDefinition sheetDefinition = (ExcelWriterSheetDefinition) sheetDefinitionEntry.getValue();
+            final Sheet sheet = createSheet(sheetDefinitionEntry.getKey(), sheetDefinition.getSheetName());
+            final ExcelComplexHeader ExcelComplexHeader = sheetDefinition.getAnnotation(ExcelComplexHeader.class);
             if (ExcelComplexHeader != null) {
-                CellRange[] cellRanges = ExcelComplexHeader.value();
-                for (CellRange cellRange : cellRanges) {
+                final CellRange[] cellRanges = ExcelComplexHeader.value();
+                for (final CellRange cellRange : cellRanges) {
                     this.curRowIndex = cellRange.firstRow();
                     this.curColIndex = cellRange.firstCol();
-                    int firstRow = cellRange.firstRow() - 1;
-                    int fristCol = cellRange.firstCol() - 1;
-                    int lastRow = cellRange.lastRow() - 1;
-                    int lastCol = cellRange.lastCol() - 1;
+                    final int firstRow = cellRange.firstRow() - 1;
+                    final int fristCol = cellRange.firstCol() - 1;
+                    final int lastRow = cellRange.lastRow() - 1;
+                    final int lastCol = cellRange.lastCol() - 1;
 
                     Row row = sheet.getRow(firstRow);
                     if (row == null) {
@@ -96,15 +95,15 @@ public abstract class AbstractExcelWriterExecutor implements ExcelExecutor, Exce
                     }
                     row.setHeightInPoints(cellRange.height());
 
-                    Cell cell = row.createCell(fristCol);
+                    final Cell cell = row.createCell(fristCol);
                     cell.setCellValue(cellRange.title());
 
                     // 合并单元格
-                    CellRangeAddress cellRangeAddress = new CellRangeAddress(firstRow, lastRow, fristCol, lastCol);
+                    final CellRangeAddress cellRangeAddress = new CellRangeAddress(firstRow, lastRow, fristCol, lastCol);
                     sheet.addMergedRegion(cellRangeAddress);
 
                     // 设置样式
-                    CellStyleBuilder cellStyleBuilder = this.cellStyleCache
+                    final CellStyleBuilder cellStyleBuilder = this.cellStyleCache
                             .getCellStyleInstance(cellRange.cellStyleBuilder());
                     cell.setCellStyle(cellStyleBuilder.build(this.sxssfWorkbook, new ExcelCellStyleDefinition(this.sxssfWorkbook), cell));
                 }
@@ -114,31 +113,31 @@ public abstract class AbstractExcelWriterExecutor implements ExcelExecutor, Exce
 
     @Override
     public void addDataValidation() {
-        for (Map.Entry<Integer, ExcelSheetDefinition> sheetDefinitionEntry : sheetDefinitions.entrySet()) {
+        for (final Map.Entry<Integer, ExcelSheetDefinition> sheetDefinitionEntry : sheetDefinitions.entrySet()) {
             this.curSheetIndex = sheetDefinitionEntry.getKey();
-            ExcelWriterSheetDefinition sheetDefinition = (ExcelWriterSheetDefinition) sheetDefinitionEntry.getValue();
-            Sheet sheet = createSheet(sheetDefinitionEntry.getKey(), sheetDefinition.getSheetName());
-            Map<Integer, Field> columnFields = sheetDefinition.getColumnFields();
-            for (Map.Entry<Integer, Field> columnFieldEntry : columnFields.entrySet()) {
-                Field field = columnFieldEntry.getValue();
-                int colIndex = this.curColIndex = columnFieldEntry.getKey();
+            final ExcelWriterSheetDefinition sheetDefinition = (ExcelWriterSheetDefinition) sheetDefinitionEntry.getValue();
+            final Sheet sheet = createSheet(sheetDefinitionEntry.getKey(), sheetDefinition.getSheetName());
+            final Map<Integer, Field> columnFields = sheetDefinition.getColumnFields();
+            for (final Map.Entry<Integer, Field> columnFieldEntry : columnFields.entrySet()) {
+                final Field field = columnFieldEntry.getValue();
+                final int colIndex = this.curColIndex = columnFieldEntry.getKey();
 
                 if (colIndex < 1) {
                     throw new IllegalArgumentException(field.getName() + "' colIndex less than 1");
                 }
 
-                String[] dataValidationConstraintList = getDataValidationConstraint(field);
+                final String[] dataValidationConstraintList = getDataValidationConstraint(field);
                 if (dataValidationConstraintList != null) {
 
-                    DataValidationHelper helper = sheet.getDataValidationHelper();
+                    final DataValidationHelper helper = sheet.getDataValidationHelper();
                     //加载下拉列表内容
-                    DataValidationConstraint dataConstraint = helper
+                    final DataValidationConstraint dataConstraint = helper
                             .createExplicitListConstraint(dataValidationConstraintList);
                     dataConstraint.setExplicitListValues(dataValidationConstraintList);
-                    CellRangeAddressList regions = new CellRangeAddressList(sheetDefinition.getFirstDataRow(), 999,
+                    final CellRangeAddressList regions = new CellRangeAddressList(sheetDefinition.getFirstDataRow(), 999,
                             colIndex - 1, colIndex - 1);
 
-                    DataValidation dataValidation = helper.createValidation(dataConstraint, regions);
+                    final DataValidation dataValidation = helper.createValidation(dataConstraint, regions);
 
                     dataValidation.setSuppressDropDownArrow(true);
                     dataValidation.createPromptBox("提示", "可选值:" + Arrays.toString(dataValidationConstraintList));
@@ -156,34 +155,34 @@ public abstract class AbstractExcelWriterExecutor implements ExcelExecutor, Exce
 
     @Override
     public void initHeadTitle() {
-        for (Map.Entry<Integer, ExcelSheetDefinition> sheetDefinitionEntry : sheetDefinitions.entrySet()) {
+        for (final Map.Entry<Integer, ExcelSheetDefinition> sheetDefinitionEntry : sheetDefinitions.entrySet()) {
             this.curSheetIndex = sheetDefinitionEntry.getKey();
-            ExcelWriterSheetDefinition sheetDefinition = (ExcelWriterSheetDefinition) sheetDefinitionEntry.getValue();
-            Sheet sheet = createSheet(sheetDefinitionEntry.getKey(), sheetDefinition.getSheetName());
+            final ExcelWriterSheetDefinition sheetDefinition = (ExcelWriterSheetDefinition) sheetDefinitionEntry.getValue();
+            final Sheet sheet = createSheet(sheetDefinitionEntry.getKey(), sheetDefinition.getSheetName());
 
-            Row row = sheet.createRow(sheetDefinition.getFirstDataRow() - 1);
+            final Row row = sheet.createRow(sheetDefinition.getFirstDataRow() - 1);
             row.setHeightInPoints(sheetDefinition.getTitleRowHeight());
 
             this.curRowIndex = row.getRowNum() + 1;
-            Map<Integer, Field> columnFields = sheetDefinition.getColumnFields();
-            for (Map.Entry<Integer, Field> columnFieldEntry : columnFields.entrySet()) {
-                Field field = columnFieldEntry.getValue();
-                int colIndex = this.curColIndex = columnFieldEntry.getKey();
+            final Map<Integer, Field> columnFields = sheetDefinition.getColumnFields();
+            for (final Map.Entry<Integer, Field> columnFieldEntry : columnFields.entrySet()) {
+                final Field field = columnFieldEntry.getValue();
+                final int colIndex = this.curColIndex = columnFieldEntry.getKey();
 
                 if (colIndex < 1) {
                     throw new IllegalArgumentException(field.getName() + "' colIndex less than 1");
                 }
 
-                ExcelExportColumn exportColumn = field.getAnnotation(ExcelExportColumn.class);
-                Cell cell = row.createCell(colIndex - 1);
+                final ExcelExportColumn exportColumn = field.getAnnotation(ExcelExportColumn.class);
+                final Cell cell = row.createCell(colIndex - 1);
                 cell.setCellValue(exportColumn.title());
                 cell.setCellType(CellType.STRING);
 
                 // 设置标题样式
-                CellStyleBuilder cellStyleBuilder = this.cellStyleCache
+                final CellStyleBuilder cellStyleBuilder = this.cellStyleCache
                         .getCellStyleInstance(exportColumn.titleCellStyleBuilder());
 
-                CellStyle cellStyle = cellStyleBuilder.build(this.sxssfWorkbook, new ExcelCellStyleDefinition(this.sxssfWorkbook), cell);
+                final CellStyle cellStyle = cellStyleBuilder.build(this.sxssfWorkbook, new ExcelCellStyleDefinition(this.sxssfWorkbook), cell);
                 cell.setCellStyle(cellStyle);
                 if (!exportColumn.autoWidth()) {
                     sheet.setColumnWidth(colIndex - 1, exportColumn.colWidth() * 256);
@@ -195,27 +194,27 @@ public abstract class AbstractExcelWriterExecutor implements ExcelExecutor, Exce
 
     @Override
     public void initData() {
-        for (Map.Entry<Integer, ExcelSheetDefinition> sheetDefinitionEntry : sheetDefinitions.entrySet()) {
+        for (final Map.Entry<Integer, ExcelSheetDefinition> sheetDefinitionEntry : sheetDefinitions.entrySet()) {
             this.curSheetIndex = sheetDefinitionEntry.getKey();
-            ExcelWriterSheetDefinition sheetDefinition = (ExcelWriterSheetDefinition) sheetDefinitionEntry.getValue();
-            Sheet sheet = createSheet(sheetDefinitionEntry.getKey(), sheetDefinition.getSheetName());
-            Map<Integer, Field> columnFields = sheetDefinition.getColumnFields();
+            final ExcelWriterSheetDefinition sheetDefinition = (ExcelWriterSheetDefinition) sheetDefinitionEntry.getValue();
+            final Sheet sheet = createSheet(sheetDefinitionEntry.getKey(), sheetDefinition.getSheetName());
+            final Map<Integer, Field> columnFields = sheetDefinition.getColumnFields();
 
-            Map<Integer, ExcelCellStyleDefinition> columnCellStyles = sheetDefinition.getColumnCellStyles(sxssfWorkbook);
+            final Map<Integer, ExcelCellStyleDefinition> columnCellStyles = sheetDefinition.getColumnCellStyles(sxssfWorkbook);
 
-            List<?> rowDatas = sheetDefinition.getRowDatas();
+            final List<?> rowDatas = sheetDefinition.getRowDatas();
             for (int rowIndex = 0; rowIndex < rowDatas.size(); rowIndex++) {
-                Row row = sheet.createRow(rowIndex + sheetDefinition.getFirstDataRow());
+                final Row row = sheet.createRow(rowIndex + sheetDefinition.getFirstDataRow());
                 row.setHeightInPoints(sheetDefinition.getDataRowHeight());
 
                 this.curRowIndex = row.getRowNum() + 1;
-                Object rowData = rowDatas.get(rowIndex);
-                for (Map.Entry<Integer, Field> columnFieldEntry : columnFields.entrySet()) {
+                final Object rowData = rowDatas.get(rowIndex);
+                for (final Map.Entry<Integer, Field> columnFieldEntry : columnFields.entrySet()) {
                     this.curColIndex = columnFieldEntry.getKey();
-                    Field field = columnFieldEntry.getValue();
-                    Cell cell = row.createCell(columnFieldEntry.getKey() - 1);
+                    final Field field = columnFieldEntry.getValue();
+                    final Cell cell = row.createCell(columnFieldEntry.getKey() - 1);
 
-                    ExcelExportColumn exportColumn = field.getAnnotation(ExcelExportColumn.class);
+                    final ExcelExportColumn exportColumn = field.getAnnotation(ExcelExportColumn.class);
                     cell.setCellType(exportColumn.cellType());
 
                     ExcelCellStyleDefinition cellStyleDefinition = null;
@@ -231,14 +230,14 @@ public abstract class AbstractExcelWriterExecutor implements ExcelExecutor, Exce
                     CellStyle cellStyle = cellStyleDefinition.getCellStyle();
 
                     // 设置数据样式
-                    CellStyleBuilder cellStyleBuilder = this.cellStyleCache
+                    final CellStyleBuilder cellStyleBuilder = this.cellStyleCache
                             .getCellStyleInstance(exportColumn.dataCellStyleBuilder());
                     cellStyle = cellStyleBuilder.build(this.sxssfWorkbook, cellStyleDefinition, cell);
 
                     // 设置数据格式
-                    ExcelDataFormat excelDataFormat = exportColumn.dataFormat();
+                    final ExcelDataFormat excelDataFormat = exportColumn.dataFormat();
                     if (!StringUtils.isBlank(excelDataFormat.value())) {
-                        DataFormat dataFormat = this.sxssfWorkbook.createDataFormat();
+                        final DataFormat dataFormat = this.sxssfWorkbook.createDataFormat();
                         cellStyle.setDataFormat(dataFormat.getFormat(excelDataFormat.value()));
                     }
 
@@ -246,7 +245,7 @@ public abstract class AbstractExcelWriterExecutor implements ExcelExecutor, Exce
 
                     try {
                         ExcelFieldUtils.setCellValue(cell, rowData, field);
-                    } catch (IllegalAccessException e) {
+                    } catch (final IllegalAccessException e) {
                         throw new ExcelWriterException("", e);
                     }
                 }
@@ -254,12 +253,12 @@ public abstract class AbstractExcelWriterExecutor implements ExcelExecutor, Exce
 
             // 设置列自动大小
             if (sheet instanceof SXSSFSheet) {
-                SXSSFSheet sxssfSheet = (SXSSFSheet) sheet;
+                final SXSSFSheet sxssfSheet = (SXSSFSheet) sheet;
                 sxssfSheet.trackAllColumnsForAutoSizing();
 
-                for (Map.Entry<Integer, Field> columnFieldEntry : columnFields.entrySet()) {
-                    Field field = columnFieldEntry.getValue();
-                    ExcelExportColumn exportColumn = field.getAnnotation(ExcelExportColumn.class);
+                for (final Map.Entry<Integer, Field> columnFieldEntry : columnFields.entrySet()) {
+                    final Field field = columnFieldEntry.getValue();
+                    final ExcelExportColumn exportColumn = field.getAnnotation(ExcelExportColumn.class);
                     if (exportColumn.autoWidth()) {
                         sxssfSheet.autoSizeColumn(columnFieldEntry.getKey());
                     }
@@ -280,7 +279,7 @@ public abstract class AbstractExcelWriterExecutor implements ExcelExecutor, Exce
     public Workbook executeWrite() {
         logger.debug("start write!");
 
-        long startTimeMillis = System.currentTimeMillis();
+        final long startTimeMillis = System.currentTimeMillis();
         this.sheetDefinitions = this.writerContext.getSheetDefinitions();
         this.sheetPaging();
         this.handleComplexHeader();
@@ -298,16 +297,16 @@ public abstract class AbstractExcelWriterExecutor implements ExcelExecutor, Exce
      * @param field
      * @return
      */
-    private String[] getDataValidationConstraint(Field field) {
-        Annotation[] annotations = field.getAnnotations();
-        for (Annotation annotation : annotations) {
-            Class<? extends Annotation> aClass = annotation.annotationType();
+    private String[] getDataValidationConstraint(final Field field) {
+        final Annotation[] annotations = field.getAnnotations();
+        for (final Annotation annotation : annotations) {
+            final Class<? extends Annotation> aClass = annotation.annotationType();
             if (aClass.isAnnotationPresent(ExcelDataValidation.class)) {
-                ExcelDataValidation dataValidation = aClass.getAnnotation(ExcelDataValidation.class);
+                final ExcelDataValidation dataValidation = aClass.getAnnotation(ExcelDataValidation.class);
                 ExcelDataValidationConstraint dataValidationConstraint = null;
                 try {
                     dataValidationConstraint = dataValidation.dataConstraint().newInstance();
-                } catch (InstantiationException | IllegalAccessException e) {
+                } catch (final InstantiationException | IllegalAccessException e) {
                     throw new ExcelException("实例化下拉值约束[" + dataValidation.dataConstraint() + "]时失败!", e);
                 }
                 dataValidationConstraint.initialize(annotation);
@@ -317,7 +316,7 @@ public abstract class AbstractExcelWriterExecutor implements ExcelExecutor, Exce
         return null;
     }
 
-    private Sheet createSheet(int sheetIndex, String sheetName) {
+    private Sheet createSheet(final int sheetIndex, final String sheetName) {
         SXSSFSheet sheet = null;
         if (sheetIndex >= this.sxssfWorkbook.getNumberOfSheets()) {
             sheet = this.sxssfWorkbook.createSheet(sheetName);
@@ -337,11 +336,11 @@ public abstract class AbstractExcelWriterExecutor implements ExcelExecutor, Exce
             this.cellStyleCacheMap = new HashMap<>();
         }
 
-        public void addCache(Class<?> clazz, CellStyleBuilder cellStyleBuilder) {
+        public void addCache(final Class<?> clazz, final CellStyleBuilder cellStyleBuilder) {
             this.cellStyleCacheMap.put(clazz, cellStyleBuilder);
         }
 
-        public CellStyleBuilder getCellStyleInstance(Class<?> clazz) {
+        public CellStyleBuilder getCellStyleInstance(final Class<?> clazz) {
             CellStyleBuilder cellStyleBuilder = this.getCache(clazz);
             if (cellStyleBuilder == null) {
                 try {
@@ -350,9 +349,9 @@ public abstract class AbstractExcelWriterExecutor implements ExcelExecutor, Exce
                     } else {
                         throw new ExcelWriterException("CellStyle [" + clazz + "] not assignable from CellStyleBuilder.class");
                     }
-                } catch (InstantiationException e) {
+                } catch (final InstantiationException e) {
                     e.printStackTrace();
-                } catch (IllegalAccessException e) {
+                } catch (final IllegalAccessException e) {
                     e.printStackTrace();
                 }
                 this.addCache(clazz, cellStyleBuilder);
@@ -360,11 +359,11 @@ public abstract class AbstractExcelWriterExecutor implements ExcelExecutor, Exce
             return cellStyleBuilder;
         }
 
-        public CellStyleBuilder getCache(Class<?> clazz) {
+        public CellStyleBuilder getCache(final Class<?> clazz) {
             return this.cellStyleCacheMap.get(clazz);
         }
 
-        public void removeCache(Class<?> clazz) {
+        public void removeCache(final Class<?> clazz) {
             this.cellStyleCacheMap.remove(clazz);
         }
 
